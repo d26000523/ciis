@@ -53,6 +53,14 @@ public class videolive_sender extends Activity implements SurfaceHolder.Callback
 
     /** 是否等待server回應*/
     boolean isWaiting;
+
+    ///test global value for reduce memory size
+    private byte[] encData;
+    private int splitIndex = 0;
+    private boolean tail = false;
+    private int length = 0;
+    private ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -191,14 +199,12 @@ public class videolive_sender extends Activity implements SurfaceHolder.Callback
                 return;
             }
             //data經過h.264壓縮成encData分兩組frame(i,p)
-            byte[] encData = this.encoder.data_change(data);
-
-            int splitIndex = 0;
-            boolean tail;
-
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            int length;
-            Log.i("i","split start");
+            encData = this.encoder.data_change(data);
+            //設置封包編號與結尾判斷
+            splitIndex = 0;
+            tail = false;
+            //將壓縮大小依序切割放入封包中，前兩碼為編號及是否結尾
+//            Log.i("i","split start");
             while(encData.length> (PACKET_SIZE-2)*splitIndex){
                 if(encData.length-(PACKET_SIZE-2)*(splitIndex+1)>0) {
                     length = PACKET_SIZE-2;
@@ -229,12 +235,15 @@ public class videolive_sender extends Activity implements SurfaceHolder.Callback
                     synchronized (this.encDataList)
                     {
                         this.encDataList.add(res);
+                        //outputStream值清空
+                        outputStream.reset();
+
                     }
                     splitIndex++;
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                outputStream.reset();
+
             }
         }
     }
