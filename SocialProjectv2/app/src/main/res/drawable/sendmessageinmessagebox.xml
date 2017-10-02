@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android" >
+    <!-- layout background -->
+    <item>
+        <!-- show rectangle area -->
+        <shape android:shape="rectangle" >
+            <solid android:color="#B6B6B6" />
+        </shape>
+    </item>
+    <!-- layout foreground -->
+    <item
+        android:bottom="12px"
+        android:top="0px">
+        <!-- show rectangle area -->
+        <shape android:shape="rectangle" >
+            <solid android:color="#F2F2F2" />
+        </shape>
+    </item>
+</layer-list>

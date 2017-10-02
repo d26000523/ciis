@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="50dip"
+        android:baselineAligned="false"
+        android:background="#44A6E4"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Choose User"
+            android:id="@+id/textView2"
+            android:textSize="25dp"
+            android:textColor="#FFFFFF"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginLeft="20dp" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginRight="15dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp" >
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/ref"
+                android:layout_alignParentEnd="true"
+                android:background="@drawable/refresh"
+                android:layout_alignParentRight="true"
+                android:onClick="refresh" />
+        </RelativeLayout>
+
+    </LinearLayout>
+
+    <ListView
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:id="@+id/friendlist"
+        android:layout_weight="1"
+        android:background="@drawable/bg" />
+
+    <RelativeLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="70dip"
+        android:background="@drawable/border">
+
+        <EditText
+            android:id="@+id/textarea"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:lines="2"
+            android:gravity="top|left"
+            android:inputType="textMultiLine"
+            android:hint="Text..."
+            android:scrollbars="vertical"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:paddingLeft="12dp"
+            android:paddingRight="12dp"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_toLeftOf="@+id/send"
+            android:layout_toStartOf="@+id/send" />
+
+        <ImageButton
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:id="@+id/send"
+            android:background="@drawable/send"
+            android:layout_centerVertical="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginRight="10dp"
+            android:layout_marginLeft="10dp"
+            android:clickable="true"
+            android:onClick="sendmessage" />
+    </RelativeLayout>
+
+</LinearLayout>

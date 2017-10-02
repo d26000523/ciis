@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#E9E9E9">
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="55dp"
+        android:gravity="center_vertical"
+        android:background="#FA5148">
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Broadcast"
+            android:id="@+id/textView14"
+            android:layout_weight="20"
+            android:textSize="25dp"
+            android:textColor="#FFFFFF"
+            android:layout_marginLeft="5dp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="10dp"
+        android:gravity="center_vertical"
+        android:background="#E9E9E9">
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="#E9E9E9">
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="0dp"
+            android:layout_height="fill_parent"
+            android:layout_weight="1" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Password："
+            android:id="@+id/checkpassword"
+            android:layout_weight="5"
+            android:textSize="18dp"
+            android:textColor="#535A61" />
+
+        <EditText
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/checkpasswordtext"
+            android:background="@android:drawable/edit_text"
+            android:layout_weight="8"
+            android:textColor="#535A61"
+            android:textSize="18dp" />
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="0dp"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"></LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="10dp"
+        android:gravity="center_vertical"
+        android:background="#E9E9E9" />
+
+    <RelativeLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="70dip"
+        android:background="@drawable/border3" >
+
+        <EditText
+            android:id="@+id/msg"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:lines="2"
+            android:gravity="top|left"
+            android:inputType="textMultiLine"
+            android:singleLine="false"
+            android:hint="Text..."
+            android:scrollbars="vertical"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:paddingLeft="12dp"
+            android:paddingRight="12dp"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_toStartOf="@+id/sendbroadcst"
+            android:layout_toLeftOf="@+id/sendbroadcst" />
+
+        <ImageButton
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:id="@+id/sendbroadcst"
+            android:background="@drawable/send"
+            android:layout_centerVertical="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginRight="10dp"
+            android:layout_marginLeft="10dp"
+            android:clickable="true" />
+    </RelativeLayout>
+
+</LinearLayout>

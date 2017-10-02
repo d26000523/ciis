@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/border4">
+
+    <RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:descendantFocusability="blocksDescendants"
+        android:padding="5dip"
+        android:background="#90000000"
+        android:id="@+id/modify">
+
+        <ImageView
+            android:id="@+id/ItemImage1"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:padding="2dip"
+            android:contentDescription="adapter_btnText"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="5dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginLeft="10dp"
+            android:background="@drawable/modify" />
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingLeft="5dp"
+            android:gravity="center_vertical"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/ItemImage1"
+            android:layout_toEndOf="@+id/ItemImage1">
+
+            <TextView
+                android:id="@+id/ItemName1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="left|center_vertical"
+                android:textSize="20dip"
+                android:textColor="#E0E0E0"
+                android:text="Edit" />
+
+        </LinearLayout>
+
+
+    </RelativeLayout>
+    <RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:descendantFocusability="blocksDescendants"
+        android:padding="5dip"
+        android:background="#90000000"
+        android:id="@+id/delete">
+        <View android:background="#ffc0c3c4"
+            android:layout_width="fill_parent"
+            android:layout_height="1.0px"/>
+        <ImageView
+            android:id="@+id/ItemImage2"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:padding="2dip"
+            android:contentDescription="adapter_btnText"
+            android:layout_marginTop="15dp"
+            android:layout_marginBottom="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginLeft="10dp"
+            android:background="@drawable/erase" />
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingLeft="5dp"
+            android:id="@+id/linearLayout"
+            android:gravity="center_vertical"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/ItemImage2"
+            android:layout_toEndOf="@+id/ItemImage2">
+
+            <TextView
+                android:id="@+id/ItemName2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="left|center_vertical"
+                android:textSize="20dip"
+                android:textColor="#E0E0E0"
+                android:text="Delete" />
+
+        </LinearLayout>
+    </RelativeLayout>
+
+</LinearLayout>

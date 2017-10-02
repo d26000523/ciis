@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.minxuan.socialprojectv2">
+
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
+    <application
+        android:name=".SharedSocket"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+        <service android:name=".MQTT.service.MqttService" />
+
+        <activity
+            android:name=".HomeActivity"
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".CreateAccount"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".MenuPage.Menupage"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".Contacts.Contacts"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".NewsLetter.MessageBox.MessageBox"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".NewsLetter.SendMessage.SendMessage"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".Video.StartSingleCall"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".Video.VideoOnlineMembers"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".UserInfo.UserInfo"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".SingleVideoCall.VideoSingleCall"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".MQTT.MainActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".MQTT.MQTTAudioBroadcast"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".MQTT.MQTTSingleMessage"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".MQTT.MQTTvideoCall"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".MQTT.service.MQTTBroadcastMemberList"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".MQTT.service.MQTTListenBroadcast"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".MQTT.service.MQTTMessageBox"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".MQTT.service.MQTTPersonalMessageBox"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".MQTT.service.MQTTSingleCall"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".Voice.VoiceSingleCall"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".Voice.Startvoicecall"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".Video.videolive_sender"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".Video.videolive_receiver"
+            android:screenOrientation="portrait" />
+        <activity android:name=".Voice.voicegroup" android:screenOrientation="portrait"/>
+        <activity android:name=".Voice.groupchatlistcheck" android:screenOrientation="portrait"/>
+        <activity android:name=".Voice.VoiceGroupListener" android:screenOrientation="portrait" />
+
+
+    </application>
+
+</manifest>

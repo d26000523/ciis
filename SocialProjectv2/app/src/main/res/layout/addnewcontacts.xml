@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#E9E9E9">
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="55dp"
+        android:gravity="center_vertical"
+        android:background="#FE9C02">
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Add Contact"
+            android:id="@+id/title"
+            android:layout_weight="20"
+            android:textSize="25dp"
+            android:textColor="#FFFFFF"
+            android:layout_marginLeft="5dp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="10dp"
+        android:gravity="center_vertical"
+        android:background="#E9E9E9">
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal">
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="0dp"
+            android:layout_height="fill_parent"
+            android:layout_weight="1" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Gender："
+            android:id="@+id/textView"
+            android:layout_weight="3"
+            android:textSize="18dp"
+            android:textColor="#535A61" />
+
+        <CheckBox
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Male"
+            android:id="@+id/boy"
+            android:textColor="#535A61"
+            android:textSize="18dp"
+            android:layout_weight="5" />
+
+        <CheckBox
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Female"
+            android:id="@+id/girl"
+            android:textColor="#535A61"
+            android:textSize="18dp"
+            android:layout_weight="5" />
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="0dp"
+            android:layout_height="fill_parent"
+            android:layout_weight="1" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="#E9E9E9">
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="0dp"
+            android:layout_height="fill_parent"
+            android:layout_weight="1" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Name"
+            android:id="@+id/name"
+            android:layout_weight="3"
+            android:textSize="18dp"
+            android:textColor="#535A61" />
+
+        <EditText
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/nametext2"
+            android:background="@android:drawable/edit_text"
+            android:layout_weight="10"
+            android:textColor="#535A61"
+            android:textSize="18dp" />
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="0dp"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"></LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="#E9E9E9">
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="0dp"
+            android:layout_height="fill_parent"
+            android:layout_weight="1" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Phone"
+            android:id="@+id/phone"
+            android:layout_weight="3"
+            android:textSize="18dp"
+            android:textColor="#535A61" />
+
+        <EditText
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/phonetext"
+            android:background="@android:drawable/edit_text"
+            android:layout_weight="10"
+            android:textSize="18dp"
+            android:textColor="#535A61" />
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="0dp"
+            android:layout_height="fill_parent"
+            android:layout_weight="1" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="#E9E9E9">
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="0dp"
+            android:layout_height="fill_parent"
+            android:layout_weight="1" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Remark"
+            android:id="@+id/other"
+            android:layout_weight="3"
+            android:textSize="18dp"
+            android:textColor="#535A61" />
+
+        <EditText
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/othertext"
+            android:background="@android:drawable/edit_text"
+            android:layout_weight="10"
+            android:textColor="#535A61"
+            android:textSize="18dp" />
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="0dp"
+            android:layout_height="fill_parent"
+            android:layout_weight="1" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="10dp"
+        android:gravity="center_vertical"
+        android:background="#E9E9E9" />
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Finish"
+            android:id="@+id/addmemfinish"
+            android:layout_weight="1"
+            android:textSize="20dp"
+            android:textColor="#FE9C02"
+            android:gravity="center"
+            android:background="@drawable/border2"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="12dp"
+            android:layout_marginBottom="10dp"
+            android:paddingBottom="8dp"
+            android:paddingTop="8dp" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Cancel"
+            android:id="@+id/addmemcancel"
+            android:layout_weight="1"
+            android:textSize="20dp"
+            android:textColor="#FE9C02"
+            android:gravity="center"
+            android:background="@drawable/border2"
+            android:layout_marginRight="30dp"
+            android:layout_marginLeft="12dp"
+            android:layout_marginBottom="10dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp" />
+
+    </LinearLayout>
+
+</LinearLayout>

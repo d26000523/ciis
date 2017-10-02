@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg">
+
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="50dip"
+        android:baselineAligned="false"
+        android:background="#44A6E4"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Choose User"
+            android:id="@+id/textViewMQTTVideoCall"
+            android:textSize="25dp"
+            android:textColor="#FFFFFF"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginLeft="20dp" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginRight="15dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp" >
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/refMQTTVideoCall"
+                android:layout_alignParentEnd="true"
+                android:background="@drawable/refresh"
+                android:layout_alignParentRight="true"
+                android:onClick="refreshMQTTVideoCall" />
+        </RelativeLayout>
+
+    </LinearLayout>
+
+    <ListView
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:id="@+id/friendlistMQTTVideoCall"
+        android:layout_weight="1"
+        android:background="#00000000"
+        />
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:background="#40000000"
+            android:text="Call"
+            android:textStyle="bold"
+            android:id="@+id/phoneVideoCall"
+            android:textColor="#E0E0E0"
+            android:paddingTop="5.0dip"
+            android:textSize="20.0sp"
+            android:onClick="StartVideoMQTTVideoCall"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true" />
+    </LinearLayout>
+
+</LinearLayout>

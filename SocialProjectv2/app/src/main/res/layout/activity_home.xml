@@ -1,0 +1,114 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/bg">
+
+    <ImageView android:id="@+id/image"
+        android:background="@drawable/person"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="80dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true" />
+    <LinearLayout
+        android:orientation="vertical"
+        android:id="@+id/input"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="28.0dip"
+        android:layout_marginRight="28.0dip"
+        android:layout_below="@+id/image">
+
+        <EditText
+            android:id="@+id/home_serverAddr"
+            android:layout_width="fill_parent"
+            android:layout_height="44dp"
+            android:background="#40000000"
+            android:gravity="center_vertical"
+            android:hint="Server Address"
+            android:inputType="phone"
+            android:maxLength="20"
+            android:maxLines="1"
+            android:paddingLeft="12.0dip"
+            android:textColor="#E0E0E0"
+            android:textColorHint="#E0E0E0"
+            android:textSize="16.0sp"
+            android:textStyle="bold" />
+
+        <View android:background="#ffc0c3c4"
+            android:layout_width="fill_parent"
+            android:layout_height="1.0px"
+            android:layout_marginLeft="1.0px"
+            android:layout_marginRight="1.0px" />
+
+        <EditText
+            android:id="@+id/home_account"
+            android:layout_width="fill_parent"
+            android:layout_height="44dp"
+            android:background="#40000000"
+            android:gravity="center_vertical"
+            android:hint="Account"
+            android:inputType="textPersonName"
+            android:maxLength="16"
+            android:maxLines="1"
+            android:paddingLeft="12.0dip"
+            android:textColor="#E0E0E0"
+            android:textColorHint="#E0E0E0"
+            android:textSize="16.0sp"
+            android:textStyle="bold" />
+
+        <View android:background="#ffc0c3c4"
+            android:layout_width="fill_parent"
+            android:layout_height="1.0px"
+            android:layout_marginLeft="1.0px"
+            android:layout_marginRight="1.0px" />
+
+        <EditText
+            android:id="@+id/home_password"
+            android:layout_width="fill_parent"
+            android:layout_height="44dp"
+            android:background="#40000000"
+            android:gravity="center_vertical"
+            android:hint="Password"
+            android:inputType="textPassword"
+            android:maxLength="16"
+            android:maxLines="1"
+            android:paddingLeft="12.0dip"
+            android:textColor="#E0E0E0"
+            android:textColorHint="#E0E0E0"
+            android:textSize="16.0sp"
+            android:textStyle="bold" />
+
+        <Button  android:textSize="18.0sp"
+            android:textColor="#ffffffff"
+            android:id="@+id/home_createNew"
+            android:background="#00000000"
+            android:clickable="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:layout_marginLeft="12.0dip"
+            android:layout_marginRight="12.0dip"
+            android:text="Create  New  Account ?"
+            android:layout_gravity="center_horizontal"
+            android:onClick="CreateNew"/>
+    </LinearLayout>
+    <Button
+        android:id="@+id/home_signIN"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:background="#40000000"
+        android:text="Sign  In"
+        android:textStyle="bold"
+        android:textColor="#E0E0E0"
+        android:paddingTop="5.0dip"
+        android:textSize="20.0sp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:onClick="SignIN"/>
+
+</RelativeLayout>

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:descendantFocusability="blocksDescendants"
+    android:padding="5dip">
+    <ImageView
+        android:id="@+id/ItemImage"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:padding="2dip"
+        android:contentDescription="adapter_btnText"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginLeft="10dp" />
+
+    <LinearLayout
+        android:id="@+id/linearLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="vertical"
+        android:paddingLeft="5dp"
+        android:layout_centerVertical="true"
+        android:layout_toRightOf="@+id/ItemImage"
+        android:layout_toEndOf="@+id/ItemImage">
+
+        <TextView
+            android:id="@+id/ItemName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="left|center_vertical"
+            android:text="447272472727"
+            android:textColor="#EEEE00"
+            android:textSize="20dip" />
+
+        <TextView
+            android:id="@+id/ItemPhone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="left|center_vertical"
+            android:text="447272472727"
+            android:textColor="#E0E0E0"
+            android:textSize="16dip" />
+
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/check"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:padding="2dip"
+        android:contentDescription="adapter_btnText"
+        android:layout_centerVertical="true"
+        android:layout_alignParentRight="false"
+        android:layout_alignParentEnd="true"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginBottom="5dp" />
+</RelativeLayout>
