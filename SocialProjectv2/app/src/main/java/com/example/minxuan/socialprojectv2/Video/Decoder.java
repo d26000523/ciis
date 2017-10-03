@@ -29,6 +29,12 @@ public class Decoder {
     int port;
     private volatile boolean running = true;
 
+    ///test global value for reduce memory size
+    private ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    private byte[] tmp;
+    private byte[] res;
+    private int packetIndex = 1;
+
     /**建構元**/
     public Decoder(Surface surface1, int port, Context context,int PACKET_SIZE)
     {
@@ -59,16 +65,15 @@ public class Decoder {
     /**開始接收封包**/
     private void receiveFromUDP()
     {
-        int server_port = this.port;
+
         /**Buffer大小**/
-        //demand: 1300
         byte[] message = new byte[PACKET_SIZE];
         DatagramPacket p = new DatagramPacket(message, message.length);
 
-        boolean exception=false;
+
         try
         {
-            data_sk = new DatagramSocket(server_port);
+            data_sk = new DatagramSocket(this.port);
             /**封包接收間隔時間**/
             data_sk.setSoTimeout(50);
         }
@@ -80,29 +85,39 @@ public class Decoder {
         while (running && data_sk!= null)
         {
             /**嘗試接收封包**/
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            outputStream = new ByteArrayOutputStream();
             while(true){
                 try {
-                    Log.d("data_sk:",String.valueOf(data_sk.getSendBufferSize()));
+                    if(message[0] != packetIndex) {
+                        //設為-1 將不會祖起封包輸出畫面
+                        packetIndex = -1;
+                        break;
+                    }
+//                    Log.d("data_sk:",String.valueOf(data_sk.getSendBufferSize()));
                     data_sk.receive(p);
 
-                    Log.d("packetsize:",String.valueOf(p.getLength()));
-                    Log.d("packet0:",String.valueOf(message[0]));
-                    Log.d("packet1:",String.valueOf(message[1]));
-                    byte[] tmp = new byte[p.getLength()-2];
+//                    Log.d("packetsize:",String.valueOf(p.getLength()));
+//                    Log.d("packet0:",String.valueOf(message[0]));
+//                    Log.d("packet1:",String.valueOf(message[1]));
+                    tmp = new byte[p.getLength()-2];
                     System.arraycopy(message,2,tmp,0,tmp.length);
                     outputStream.write(tmp);
-                    //收到封包的tail就結束並輸出
-                    if (message[1] == 1)
+                    //收到封包的tail就結束並輸出並重設index
+                    if (message[1] == 1){
+                        packetIndex = 1;
                         break;
+                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
-            byte[] res = outputStream.toByteArray();
-            outputStream.reset();
-            Log.d("length",String.valueOf(res.length));
-            decoder_check(res, res.length);
+            if(packetIndex != -1){
+                res = outputStream.toByteArray();
+                outputStream.reset();
+//                Log.d("length",String.valueOf(res.length));
+                decoder_check(res, res.length);
+            }
+
 
         }
         /**如果Socket沒有開起來**/

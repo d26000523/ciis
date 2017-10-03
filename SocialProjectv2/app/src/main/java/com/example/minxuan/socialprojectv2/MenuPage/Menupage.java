@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,6 +19,7 @@ import android.widget.Toast;
 import com.example.minxuan.socialprojectv2.AccountHandler;
 import com.example.minxuan.socialprojectv2.Contacts.Contacts;
 import com.example.minxuan.socialprojectv2.Message;
+import com.example.minxuan.socialprojectv2.NetworkClient;
 import com.example.minxuan.socialprojectv2.NetworkClientHandler;
 import com.example.minxuan.socialprojectv2.NewsLetter.MessageBox.MessageBox;
 import com.example.minxuan.socialprojectv2.NewsLetter.SendMessage.SendMessage;
@@ -45,6 +47,36 @@ public class Menupage extends AppCompatActivity {
 
         initview();
     }
+
+
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.d("=======================","onDestroy");
+
+
+        /** 整理登出訊息*/
+        Gson gson = new Gson();
+        Message message = new Message();
+        message.setTAG("LOGOUT");
+        message.setMessage(NetworkClientHandler.getLocalIpAddress());
+        String gsonStr = gson.toJson(message);
+
+        if(NetworkClientHandler.networkClient!=null){
+            NetworkClientHandler.networkClient.webSocketClient.send(gsonStr);
+        }
+
+
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.d("=======================","stop");
+
+    }
+
 
     public void initview() {
 

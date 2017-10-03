@@ -11,6 +11,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.minxuan.socialprojectv2.AccountHandler;
 import com.example.minxuan.socialprojectv2.MQTT.WaveHelper;
@@ -33,7 +34,7 @@ public class Startvoicecall extends AppCompatActivity {
     AlertDialog.Builder newmemalert;
     LayoutInflater layoutInflater;
     View add;
-    final CallVoice callvoice = new CallVoice(this, new InetSocketAddress(NetworkClientHandler.StreamingTarget, 10003));
+    private CallVoice callvoice;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +57,7 @@ public class Startvoicecall extends AppCompatActivity {
 
             /** 送出訊息*/
             NetworkClientHandler.networkClient.webSocketClient.send(gsonStr);
+
             OK();
 
         }else if(bundle.get("VOICE").toString().compareTo("ACCEPT")==0){
@@ -140,6 +142,7 @@ public class Startvoicecall extends AppCompatActivity {
         /**使用CALLVOICE**/
         try
         {
+            callvoice = new CallVoice(this, new InetSocketAddress(NetworkClientHandler.StreamingTarget, 10003));
             callvoice.startPhone();
         }
         catch (Exception e)
@@ -163,15 +166,23 @@ public class Startvoicecall extends AppCompatActivity {
                     .setNegativeButton("確定",new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            try{
-                                callvoice.stopPhone();
-                            }catch (Exception e){
-                                e.printStackTrace();
-                            }
+                            new Thread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    try {
+                                        callvoice.stopPhone();
+                                    }
+                                    catch (Exception e){
+                                        e.printStackTrace();
+                                    }
+                                }
+                            }).start();
+
                             Intent i = new Intent();
                             i.setClass(Startvoicecall.this, Menupage.class);
-                            finish();
                             startActivity(i);
+                            finish();
+
                         }
                     })
                     .show();
