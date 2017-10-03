@@ -171,6 +171,8 @@ public class Startvoicecall extends AppCompatActivity {
                                 public void run() {
                                     try {
                                         callvoice.stopPhone();
+                                        finish();
+
                                     }
                                     catch (Exception e){
                                         e.printStackTrace();
@@ -178,10 +180,7 @@ public class Startvoicecall extends AppCompatActivity {
                                 }
                             }).start();
 
-                            Intent i = new Intent();
-                            i.setClass(Startvoicecall.this, Menupage.class);
-                            startActivity(i);
-                            finish();
+
 
                         }
                     })
