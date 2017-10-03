@@ -100,6 +100,10 @@ public class CallVoice {
             }
             double decibel = 10*Math.log10(v/(double)b);
             DatagramPacket pack = null;
+            Log.d("ClientAddress:", ClientAddress.toString());
+            Log.d("datasock:", datasock.toString());
+            Log.d("compressedVoice2:", String.valueOf(compressedVoice2.length));
+
             if(decibel > 10) {
                 try {
                     pack = new DatagramPacket(compressedVoice2, compressedVoice2.length, ClientAddress);
@@ -130,7 +134,6 @@ public class CallVoice {
             try {
                 if(datasock!=null)
                     datasock.receive(Datapack);
-
                 packnum++;
                 if(packnum==1){
                     for(int i=0;i<1024;i++)
@@ -143,13 +146,14 @@ public class CallVoice {
                 else{
                     for(int i=2048;i<3072;i++)
                         audiot[i] = Datapack.getData()[i-2048];
+                    Log.d("audiot:", String.valueOf(audiot.length));
                     phoneSPK.write(audiot, 0, audiot.length);
                     packnum=0;
                 }
-                int v = 0;
-                for (int i = 0; i < Datapack.getData().length; i++) {
-                    v += Datapack.getData()[i] * Datapack.getData()[i];
-                }
+//                int v = 0;
+//                for (int i = 0; i < Datapack.getData().length; i++) {
+//                    v += Datapack.getData()[i] * Datapack.getData()[i];
+//                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
