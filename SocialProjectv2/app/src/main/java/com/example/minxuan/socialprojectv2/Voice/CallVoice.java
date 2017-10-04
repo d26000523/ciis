@@ -15,6 +15,8 @@ import java.net.DatagramSocket;
 import java.net.SocketAddress;
 import java.net.SocketException;
 
+
+
 /**
  * Created by MinXuan on 2017/6/14.
  */
@@ -59,7 +61,14 @@ public class CallVoice {
             public void run() {
                 try {
                     initAudioHardware();
+                    System.out.println("initAudioHardware();");
+
                     startPhoneMIC();
+                    System.out.println("startPhoneMIC();");
+
+                    speak();
+                    System.out.println("speak();");
+
                     //startPhoneSPK();
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -83,39 +92,46 @@ public class CallVoice {
     }
 
     private void startPhoneMIC() throws Exception {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while ((!Thread.interrupted()) && type==1 ) {
+                    short[] compressedVoice = new short[recBufferSize/2];
+                    byte[] compressedVoice2 = new byte[recBufferSize];
+                    int b = phoneMIC.read(compressedVoice, 0, recBufferSize/2);
+                    calc1(compressedVoice, 0, recBufferSize / 2);
 
-        while ((!Thread.interrupted()) && type==1 ) {
-            short[] compressedVoice = new short[recBufferSize/2];
-            byte[] compressedVoice2 = new byte[recBufferSize];
-            int b = phoneMIC.read(compressedVoice, 0, recBufferSize/2);
-            calc1(compressedVoice, 0, recBufferSize / 2);
-
-            for(int i=0,j=0;i<recBufferSize;i=i+2,j++){
-                compressedVoice2[i]= (byte)(compressedVoice[j] & 0x00FF);
-                compressedVoice2[i+1] = (byte)((compressedVoice[j] & 0xFF00) >> 8);
-            }
-            int v = 0;
-            for (int i = 0; i < compressedVoice.length; i++) {
-                v += compressedVoice[i] * compressedVoice[i];
-            }
-            double decibel = 10*Math.log10(v/(double)b);
-            //Log.i("compressedVoice2:", String.valueOf(compressedVoice2[0]));
-            speak(compressedVoice2);
-            if(decibel > 10) {
-                try {
-                    DatagramPacket pack = new DatagramPacket(compressedVoice2, compressedVoice2.length, ClientAddress);
-                    if(datasock!=null){
-                        //Log.i("send","send");
-                        datasock.send(pack);
+                    for(int i=0,j=0;i<recBufferSize;i=i+2,j++){
+                        compressedVoice2[i]= (byte)(compressedVoice[j] & 0x00FF);
+                        compressedVoice2[i+1] = (byte)((compressedVoice[j] & 0xFF00) >> 8);
                     }
+                    int v = 0;
+                    for (int i = 0; i < compressedVoice.length; i++) {
+                        v += compressedVoice[i] * compressedVoice[i];
+                    }
+                    double decibel = 10*Math.log10(v/(double)b);
+                    //Log.i("compressedVoice2:", String.valueOf(compressedVoice2.length));
+                    //System.out.println(" phoneSPK.write(compressedVoice2, 0, compressedVoice2.length);");
+                    //phoneSPK.write(compressedVoice2, 0, compressedVoice2.length);
 
-                } catch (SocketException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
+                    if(decibel > 10) {
+                        try {
+                            DatagramPacket pack = new DatagramPacket(compressedVoice2, compressedVoice2.length, ClientAddress);
+                            if(datasock!=null){
+                                //Log.i("send","send");
+                                datasock.send(pack);
+                            }
+
+                        } catch (SocketException e) {
+                            e.printStackTrace();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
                 }
             }
-        }
+        }).start();
+
 
 
     }
@@ -126,26 +142,25 @@ public class CallVoice {
             lin[i+off] = (short)(j>>2);
         }
     }
-    private void speak(byte[] c){
-        int packnum=0;
-        byte[] audiot = new byte[recBufferSize*3];
-        while (type==1) {
-                packnum++;
-                if(packnum==1){
-                    for(int i=0;i<1024;i++)
-                        audiot[i] = Datapack.getData()[i];
+    private void speak(){
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                int packnum = 0;
+                while (type==1 && datasock != null) {
+                    try {
+                        datasock.receive(Datapack);
+
+
+                        phoneSPK.write(Datapack.getData(), 0, Datapack.getData().length);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
                 }
-                else if(packnum==2){
-                    for(int i=1024;i<2048;i++)
-                        audiot[i] = Datapack.getData()[i-1024];
-                }
-                else{
-                    for(int i=2048;i<3072;i++)
-                        audiot[i] = Datapack.getData()[i-2048];
-                    phoneSPK.write(audiot, 0, audiot.length);
-                    packnum=0;
-                }
-        }
+            }
+        }).start();
+
     }
     private void startPhoneSPK() throws Exception {
         int packnum=0;
