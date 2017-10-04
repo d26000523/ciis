@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
@@ -30,7 +31,7 @@ public class Startvoicecall extends AppCompatActivity {
     public WaveHelper mWaveHelper;
     public WaveHelper mWaveHelper2;
     /**通話物件**/
-    AlertDialog dialog;
+    private AlertDialog callDialog;
     AlertDialog.Builder newmemalert;
     LayoutInflater layoutInflater;
     View add;
@@ -43,22 +44,33 @@ public class Startvoicecall extends AppCompatActivity {
         final Bundle bundle = this.getIntent().getExtras();
 
         if(bundle.get("VOICE").toString().compareTo("REQUEST")==0){
-            String targetPhone = bundle.getString("key");
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    /** 整理要求通話訊息*/
+                    String targetPhone = bundle.getString("key");
+                    Gson gson = new Gson();
+                    Message message = new Message();
+                    message.setTAG("VOICE_SINGLE");
+                    message.setSender(AccountHandler.phoneNumber);
+                    message.setReceiver(targetPhone);
+                    message.setIP(AccountHandler.IP);
+                    message.setMessage("REQUEST");
+                    String gsonStr = gson.toJson(message);
 
-            /** 整理要求通話訊息*/
-            Gson gson = new Gson();
-            Message message = new Message();
-            message.setTAG("VOICE_SINGLE");
-            message.setSender(AccountHandler.phoneNumber);
-            message.setReceiver(targetPhone);
-            message.setIP(AccountHandler.IP);
-            message.setMessage("REQUEST");
-            String gsonStr = gson.toJson(message);
+                    /** 送出訊息*/
+                    NetworkClientHandler.networkClient.webSocketClient.send(gsonStr);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            OK();
+                        }
+                    });
+                }
+            }).start();
 
-            /** 送出訊息*/
-            NetworkClientHandler.networkClient.webSocketClient.send(gsonStr);
 
-            OK();
+
 
         }else if(bundle.get("VOICE").toString().compareTo("ACCEPT")==0){
 
@@ -95,10 +107,10 @@ public class Startvoicecall extends AppCompatActivity {
                 .setPositiveButton("拒絕", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        Intent i = new Intent();
-                        i.setClass(Startvoicecall.this, Menupage.class);
+                        //Intent i = new Intent();
+                        //i.setClass(Startvoicecall.this, Menupage.class);
                         finish();
-                        startActivity(i);
+                        //startActivity(i);
                     }
                 })
                 .setNegativeButton("接聽",new DialogInterface.OnClickListener() {
@@ -117,7 +129,7 @@ public class Startvoicecall extends AppCompatActivity {
         newmemalert = new AlertDialog.Builder(this);//對話方塊
         newmemalert.setCancelable(false);
         newmemalert.setView(add);
-        dialog = newmemalert.show();
+        callDialog = newmemalert.show();
         ImageView im = (ImageView)add.findViewById(R.id.groupcalling);
         TextView gr = (TextView)add.findViewById(R.id.group);
         im.setImageResource(R.drawable.group0);
@@ -170,7 +182,9 @@ public class Startvoicecall extends AppCompatActivity {
                                 @Override
                                 public void run() {
                                     try {
-                                        callvoice.stopPhone();
+                                        if(callvoice!= null)
+                                            callvoice.stopPhone();
+                                        callDialog.dismiss();
                                         finish();
 
                                     }
