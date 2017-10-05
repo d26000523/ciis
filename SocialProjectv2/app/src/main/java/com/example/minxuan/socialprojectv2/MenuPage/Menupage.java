@@ -19,7 +19,6 @@ import android.widget.Toast;
 import com.example.minxuan.socialprojectv2.AccountHandler;
 import com.example.minxuan.socialprojectv2.Contacts.Contacts;
 import com.example.minxuan.socialprojectv2.Message;
-import com.example.minxuan.socialprojectv2.NetworkClient;
 import com.example.minxuan.socialprojectv2.NetworkClientHandler;
 import com.example.minxuan.socialprojectv2.NewsLetter.MessageBox.MessageBox;
 import com.example.minxuan.socialprojectv2.NewsLetter.SendMessage.SendMessage;

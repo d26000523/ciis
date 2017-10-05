@@ -21,7 +21,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
 /**
- * Handles call backs from the MQTT Client
+ * 當接收到MQTT傳來的訊息
  *
  */
 public class MqttCallbackHandler implements MqttCallback {
@@ -101,66 +101,72 @@ public class MqttCallbackHandler implements MqttCallback {
         notifyArgs[1] = new String(message.getPayload());
         notifyArgs[2] = topic;
 
-
-
         mess = (String) notifyArgs[1];
         Activity activity = (Activity)context;
         final SharedSocket sh = (SharedSocket)activity.getApplication();
 
         Log.d("msgarrive",topic+"   "+mess);
 
-        if(topic.compareTo("MQTT_UE_LIST")==0){     //收到UE LIST
+        /**接收到使用者列表**/
+        if(topic.compareTo("MQTT_UE_LIST")==0){
         /*******如果failed這裡會爆*******/
             sh.LIST_msg = mess;
-
-        }else if(topic.compareTo("MQTT_SMS")==0){   //收到簡訊
-
+        }
+        /**接收到多人類型訊息**/
+        else if(topic.compareTo("MQTT_SMS_SEND")==0)
+        {   //收到廣播簡訊
+            /**先切割字串，因為收到的形式為 MQTTAudioBroadcast_10.58.0.2**/
             String ifbroadcasting[] = mess.split("_");
-
-            if(ifbroadcasting[0].compareTo("MQTTAudioBroadcast")==0){
-
-                Notify.notifcation(context, context.getString(R.string.notification, notifyArgs), intent, "ip:"+ifbroadcasting[1]+"正在直播");
+            /**接收到語音廣播**/
+            if(ifbroadcasting[0].compareTo("MQTTAudioBroadcast")==0)
+            {
+                Notify.notifcation(context, context.getString(R.string.notification, notifyArgs), intent, "ip:"+ifbroadcasting[1]+"is streaming now");
                 sh.BroadcastMember.add(ifbroadcasting[1]);
-
-            }else{
-
-                sh.USER_msg.add(mess);
-
             }
-
-        }else if(topic.compareTo("MQTT_SMS_$(" + sh.id + ")")==0){
-
+            /**接收到訊文廣播**/
+            else
+            {
+                sh.USER_msg.add(mess);
+            }
+        }
+        /**接收到單人類型訊息**/
+        else if(topic.compareTo("MQTT_SMS_SEND_$(" + sh.id + ")")==0)
+        {
             String ifacceptbroadcasting[] = mess.split("_");
-
-            if(ifacceptbroadcasting[0].compareTo("VoiceCall")==0){
-
-                Notify.notifcation(context, context.getString(R.string.notification, notifyArgs), intent, "ip:"+ifacceptbroadcasting[1]+"呼叫您");
-
-            }else if(ifacceptbroadcasting[0].compareTo("VideoCall")==0){
-
-                Notify.notifcation(context, context.getString(R.string.notification, notifyArgs), intent, "ip:"+ifacceptbroadcasting[1]+"呼叫您");
-
-            }else if(ifacceptbroadcasting[0].compareTo("MQTTAcceptAudio")==0){
+            /**單人語音通話**/
+            if(ifacceptbroadcasting[0].compareTo("VoiceCall")==0)
+            {
+                Notify.notifcation(context, context.getString(R.string.notification, notifyArgs), intent, "ip:"+ifacceptbroadcasting[1]+"call you!");
+            }
+            /**單人視訊通話**/
+            else if(ifacceptbroadcasting[0].compareTo("VideoCall")==0)
+            {
+                Notify.notifcation(context, context.getString(R.string.notification, notifyArgs), intent, "ip:"+ifacceptbroadcasting[1]+"call you!");
+            }
+            /**加入語音通話**/
+            else if(ifacceptbroadcasting[0].compareTo("MQTTAcceptAudio")==0)
+            {
                 InetAddress clientaddr;
                 clientaddr = InetAddress.getByName(ifacceptbroadcasting[1]);
                 final InetSocketAddress ClientAddress = new InetSocketAddress(clientaddr, 10004);
                 sh.OnlineListener.add(ClientAddress);
+            }
+            else if(ifacceptbroadcasting[0].compareTo("MQTTLeaveAudio")==0)
+            {
 
-            }else if(ifacceptbroadcasting[0].compareTo("MQTTLeaveAudio")==0){
-
-            }else{
+            }
+            else
+            {
                 Log.d("msgarrive",topic+"   "+mess);
                 sh.USER_msg.add(mess);
             }
-
         }
+        /**接收使用者資訊**/
         else if(topic.compareTo("MQTT_UE_INFO")==0)
         {
             ue_info = mess;
         }
-
         c.addAction(messageString);
-
     }
 
     /**
@@ -170,6 +176,4 @@ public class MqttCallbackHandler implements MqttCallback {
     public void deliveryComplete(IMqttDeliveryToken token) {
         // Do nothing
     }
-
-
 }

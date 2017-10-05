@@ -188,7 +188,6 @@ public class ActionListener implements IMqttActionListener {
                 (Object[]) additionalArgs);
         c.addAction(action);
         Notify.toast(context, action, Toast.LENGTH_SHORT);
-
     }
 
     /**

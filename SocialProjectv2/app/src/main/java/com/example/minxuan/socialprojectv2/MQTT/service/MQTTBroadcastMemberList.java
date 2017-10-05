@@ -41,7 +41,6 @@ public class MQTTBroadcastMemberList extends ActionBarActivity {
         ListView listView = (ListView)findViewById(R.id.onlinemember);
         listView.setAdapter(Btnadapter);
 
-
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
@@ -57,8 +56,6 @@ public class MQTTBroadcastMemberList extends ActionBarActivity {
                         finish();
                     }
                 }).start();
-
-
             }
         });
     }

@@ -9,7 +9,6 @@ import android.content.SharedPreferences;
 import android.graphics.ImageFormat;
 import android.hardware.Camera;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
@@ -144,7 +143,7 @@ public class videolive_sender extends Activity implements SurfaceHolder.Callback
 
         /**使用CALLVOICE**/
         try{
-             groupvoice.startPhone();
+            groupvoice.startPhone();
         }
         catch (Exception e){
             e.printStackTrace();

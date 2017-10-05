@@ -33,7 +33,7 @@ public class Decoder {
     private ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
     private byte[] tmp;
     private byte[] res;
-    private int packetIndex = 1;
+    private int packetIndex = 0;
 
     /**建構元**/
     public Decoder(Surface surface1, int port, Context context,int PACKET_SIZE)
@@ -75,30 +75,32 @@ public class Decoder {
         {
             data_sk = new DatagramSocket(this.port);
             /**封包接收間隔時間**/
-            data_sk.setSoTimeout(50);
+            data_sk.setSoTimeout(100);
         }
         catch (SocketException e)
         {
             e.printStackTrace();
         }
+
         /**當解碼器開始運作以及Socket有開起來**/
         while (running && data_sk!= null)
         {
             /**嘗試接收封包**/
             outputStream = new ByteArrayOutputStream();
+
             while(true){
                 try {
-                    if(message[0] != packetIndex) {
-                        //設為-1 將不會祖起封包輸出畫面
-                        packetIndex = -1;
-                        break;
-                    }
+//                    if(message[0] != packetIndex) {
+//                        //設為-1 將不會祖起封包輸出畫面
+//                        packetIndex = -1;
+//                        break;
+//                    }
 //                    Log.d("data_sk:",String.valueOf(data_sk.getSendBufferSize()));
                     data_sk.receive(p);
 
-//                    Log.d("packetsize:",String.valueOf(p.getLength()));
-//                    Log.d("packet0:",String.valueOf(message[0]));
-//                    Log.d("packet1:",String.valueOf(message[1]));
+                    Log.d("packetsize:",String.valueOf(p.getLength()));
+                    Log.d("packet0:",String.valueOf(message[0]));
+                    Log.d("packet1:",String.valueOf(message[1]));
                     tmp = new byte[p.getLength()-2];
                     System.arraycopy(message,2,tmp,0,tmp.length);
                     outputStream.write(tmp);

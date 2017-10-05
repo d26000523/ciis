@@ -83,24 +83,15 @@ public class MQTTMessageBox extends ActionBarActivity {
         mqttmsgboxadapter Btnadapter = new mqttmsgboxadapter(
                 this,
                 sh.MQTTmessagebox,
-                R.layout.messageboxlistview,
+                R.layout.mqttmsgboxlistview,
                 new String[] {"ItemPhone","ItemMessagebox"},
                 new int[] {R.id.phonetext,R.id.latestmessage}
         );
         messgelist.setAdapter(Btnadapter);
 
-
-
         messgelist.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                //"收件夾"0,"通訊錄"1,"簡訊"2,"多人簡訊"3,"廣播簡訊"4,"語音通話"5,"視訊通話"6,"其他設定"7
-                /*new AlertDialog.Builder(Messagebox.this)//對話方塊
-                        .setIcon(R.mipmap.ic_launcher)
-                        .setTitle(position+"")
-
-                        .show();*/
-
                 Intent i = new Intent();
                 i.setClass(MQTTMessageBox.this, MQTTPersonalMessageBox.class);
                 Bundle bundle = new Bundle();
@@ -108,8 +99,6 @@ public class MQTTMessageBox extends ActionBarActivity {
                 //將Bundle物件assign給intent
                 i.putExtras(bundle);
                 startActivity(i);
-
-
             }
         });
 

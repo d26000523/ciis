@@ -14,7 +14,6 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -22,6 +21,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.minxuan.socialprojectv2.HomeActivity;
 import com.example.minxuan.socialprojectv2.ListviewAdapter.menulistadapter;
 import com.example.minxuan.socialprojectv2.MQTT.ActionListener.Action;
 import com.example.minxuan.socialprojectv2.MQTT.Connection.ConnectionStatus;
@@ -72,26 +72,36 @@ public class MainActivity extends Activity {
     String clientHandle;
     Context context = this;
     static String message ="";
-    Button button;
-    TextView textView;
+    String serverip_check;
+    String [] forinfo = new String[5];
     Handler handler = new Handler();
     private static final int request = 1;
-
+    /**一進入應用，會先publish自己的資訊到MQTT_UE_INFO中，增添自己的資訊
+        且會subscribe三個topic，一是MQTT_UE_LIST這個使用者清單，二是MQTT_SMS_SEND負責廣播簡訊的，三為MQTT_SMS_SEND_(使用者ID)
+        **/
+    /**
+       處理Server傳來的訊息都在MqttCallbackHandler
+        **/
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Toast.makeText(getApplicationContext(), "Change to MQTT Mode", Toast.LENGTH_SHORT).show();
         perchec();
         final SharedSocket sh = (SharedSocket)getApplication();
-
-        try {
+        try
+        {
             sh.datasock = new DatagramSocket(10000);
-        } catch (SocketException e) {
+        }
+        catch (SocketException e) {
             e.printStackTrace();
         }
-
-        //Connect
-        connect();
+        /**自動判斷server IP**/
+        String[] tmp = getLocalIpAddress().split("\\.");
+        serverip_check = tmp[1];
+        /** Connect*/
+        connect(serverip_check);
+        /** 等待並發布自己的IP&電話號碼*/
         Thread thread2 = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -106,7 +116,8 @@ public class MainActivity extends Activity {
             }
         });
         thread2.start();
-        //Subscribe
+
+        /**Subscribe 訂閱UE_List*/
         Thread thread = new Thread(new Runnable() {
 
             @Override
@@ -120,9 +131,8 @@ public class MainActivity extends Activity {
                 }
                 String[] tmp = getLocalIpAddress().split("\\.");
                 sh.LocalAddress = getLocalIpAddress();
-                subscribe(new String[]{"MQTT_UE_LIST","MQTT_SMS","MQTT_SMS_$("+tmp[3]+")"});
-                sh.id = tmp[3];
-
+                subscribe(new String[]{"MQTT_UE_LIST","MQTT_SMS_SEND","MQTT_SMS_SEND_$("+tmp[2]+"_"+tmp[3]+")"});
+                sh.id = tmp[2]+"_"+tmp[3];
                 try {
                     Thread.sleep(1000);
                     runOnUiThread(new Runnable() {
@@ -132,24 +142,24 @@ public class MainActivity extends Activity {
                             TextView mqttid = (TextView) findViewById(R.id.mqttid);
                             mqttip.setText("IP Address : " + getLocalIpAddress());
                             mqttid.setText("ID : " + sh.id);
+                            forinfo[1] = sh.id;
                         }
                     });
-
-                } catch (InterruptedException e) {
+                } catch (InterruptedException e)
+                {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
             }
         });
         thread.start();
-
         //設定Menupage顯示的Listview
-        String[] name = {"Message Box","Message","Message Broadcast","Voice Call","Voice Broadcast", "Video Call"};
-        int[] pic = {R.drawable.inbox,R.drawable.message,
-                R.drawable.broadcasting,R.drawable.phone,R.drawable.phone, R.drawable.singlevideocall};
+        String[] name = {"User Detail Information","Message Box","Message","Message Broadcast","Voice Call","Voice Broadcast", "Video Call"};
+        int[] pic = {R.drawable.settings,R.drawable.inbox,R.drawable.message,
+        R.drawable.messagegroup,R.drawable.phone,R.drawable.gorup0, R.drawable.singlevideocall};
         ListView listView = (ListView)findViewById(R.id.listView);
         ArrayList<HashMap<String, Object>> Item = new ArrayList<HashMap<String, Object>>();
-        for(int i=0; i<6; i++)
+        for(int i=0; i<7; i++)
         {
             HashMap<String, Object> map = new HashMap<String, Object>();
             map.put("ItemImage", pic[i]);
@@ -169,15 +179,14 @@ public class MainActivity extends Activity {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                //"收件夾","簡訊","廣播簡訊","語音通話","語音廣播"
                 switch (position){
-                    case 1:
-                        Intent i = new Intent();
-                        i.setClass(MainActivity.this, MQTTSingleMessage.class);
-                        startActivity(i);
-                        sh.clientHandle = clientHandle;
-                        break;
                     case 0:
+                        Intent i0 = new Intent();
+                        i0.putExtra("info",forinfo);
+                        i0.setClass(MainActivity.this, Mqtt_userinfo.class);
+                        startActivity(i0);
+                        break;
+                    case 1:
                         try {
                             SharedSocket sh = (SharedSocket)getApplication();//拿出applicatioon
                             FileInputStream fis = null;
@@ -197,87 +206,79 @@ public class MainActivity extends Activity {
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
-
                         Intent i2 = new Intent();
                         i2.setClass(MainActivity.this, MQTTMessageBox.class);
                         startActivity(i2);
                         break;
-                    case 2 :
+                    case 2:
+                        Intent i = new Intent();
+                        i.setClass(MainActivity.this, MQTTSingleMessage.class);
+                        startActivity(i);
+                        sh.clientHandle = clientHandle;
+                        break;
+                    case 3 :
                         Broadcasting();
                         break;
-                    case 3:
+                    case 4:
                         Intent i3 = new Intent();
                         i3.setClass(MainActivity.this, MQTTSingleCall.class);
                         startActivity(i3);
                         break;
-                    case 4:
+                    case 5:
                         AudioBroadcasting();
                         break;
-                    case 5:
+                    case 6:
                         videoCall();
                         break;
                 }
             }
         });
     }
-
-    public void getmsg(View v){
-        SharedSocket sh = (SharedSocket)getApplication();
-        TextView t = (TextView)findViewById(R.id.msg);
-        t.setText(sh.SMS_msg);
-
-    }
-
-    void connect() {
+    /**連接eNB**/
+    void connect(String serverip) {
         MqttConnectOptions conOpt = new MqttConnectOptions();
-
-
         // The basic client information
-        String server = "10.102.81.58";
-        String clientId = "Client"+getLocalIpAddress();
+        if (serverip.compareTo("1") == 0 || serverip.compareTo("254") == 0) {
+            Toast.makeText(getApplicationContext(), "Wrong Server IP", Toast.LENGTH_SHORT).show();
+            Intent i3 = new Intent();
+            i3.setClass(MainActivity.this, HomeActivity.class);
+            startActivity(i3);
+            finish();
+        }
+        else
+        {
+        //String server = "10.102.81." + serverip;
+            String server = "1.0.0.1";
+            forinfo[0] = server;
+        String clientId = "Client" + getLocalIpAddress();
         int port = 1883;
         boolean cleanSession = false;
-
         boolean ssl = false;
         String uri = null;
         if (ssl) {
             Log.e("SSLConnection", "Doing an SSL Connect");
             uri = "ssl://";
-
-        }
-        else {
+        } else {
             uri = "tcp://";
         }
-
         uri = uri + server + ":" + port;
-
         MqttClientAndroidService client;
         client = Connections.getInstance(this).createClient(this, uri, clientId);
         // create a client handle
         clientHandle = uri + clientId;
-
         // last will message
         String message = "Will message";
         String topic = "Will topic";
         Integer qos = 0;
         Boolean retained = false;
-
         // connection options
-
         String username = "";
-
         String password = "";
-
         int timeout = 1000;
-
         int keepalive = 10;
-
         Connection connection = new Connection(clientHandle, clientId, server, port, this, client, ssl);
-
-
         connection.registerChangeListener(changeListener);
         // connect client
-
         String[] actionArgs = new String[1];
         actionArgs[0] = clientId;
         connection.changeConnectionStatus(ConnectionStatus.CONNECTING);
@@ -291,20 +292,16 @@ public class MainActivity extends Activity {
         if (!password.equals(ActivityConstants.empty)) {
             conOpt.setPassword(password.toCharArray());
         }
-
         final ActionListener callback = new ActionListener(this,
                 ActionListener.Action.CONNECT, clientHandle, actionArgs);
-
         boolean doConnect = true;
-
         if ((!message.equals(ActivityConstants.empty))
                 || (!topic.equals(ActivityConstants.empty))) {
             // need to make a message since last will is set
             try {
                 conOpt.setWill(topic, message.getBytes(), qos.intValue(),
                         retained.booleanValue());
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 doConnect = false;
                 callback.onFailure(null, e);
             }
@@ -315,41 +312,36 @@ public class MainActivity extends Activity {
         if (doConnect) {
             try {
                 client.connect(conOpt, null, callback);
-            }
-            catch (MqttException e) {
+            } catch (MqttException e) {
                 Log.e(this.getClass().getCanonicalName(),
                         "MqttException Occured", e);
             }
         }
+        }
     }
 
-    private class ChangeListener implements PropertyChangeListener {
-
+    private class ChangeListener implements PropertyChangeListener
+    {
         /**
          * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
          */
         @Override
         public void propertyChange(PropertyChangeEvent event) {
-
             if (!event.getPropertyName().equals(ActivityConstants.ConnectionStatusProperty)) {
                 return;
             }
-            clientConnections.runOnUiThread(new Runnable() {
-
+            clientConnections.runOnUiThread(new Runnable()
+            {
                 @Override
-                public void run() {
-
+                public void run()
+                {
                 }
-
             });
-
         }
     }
-
-    void subscribe(String[] topics)
-    {
+    /**訂閱三個TOPIC**/
+    void subscribe(String[] topics){
         int qos = 0;
-
         try {
             Connections.getInstance(context).getConnection(clientHandle).getClient()
                     .subscribe(topics[0], qos, null, new ActionListener(context, Action.SUBSCRIBE, clientHandle, topics));
@@ -358,49 +350,47 @@ public class MainActivity extends Activity {
             Connections.getInstance(context).getConnection(clientHandle).getClient()
                     .subscribe(topics[2], qos, null, new ActionListener(context, Action.SUBSCRIBE, clientHandle, topics));
         }
-        catch (MqttSecurityException e) {
-            
+        catch (MqttSecurityException e)
+        {
             Log.e(this.getClass().getCanonicalName(), "Failed to subscribe to" + topics[0] + " the client with the handle " + clientHandle, e);
         }
-        catch (MqttException e) {
+        catch (MqttException e)
+        {
             Log.e(this.getClass().getCanonicalName(), "Failed to subscribe to" + topics[0] + " the client with the handle " + clientHandle, e);
         }
     }
-
-    void publish()
-    {
+    /**publish to topic >> MQTT_UE_INFO**/
+    void publish(){
         String topic = "MQTT_UE_INFO";
-
-
         String[] tmp = getLocalIpAddress().split("\\.");
-        String message = "imsi:"+tmp[3]+"\nip:"+getLocalIpAddress()+"\nphone:0999099999\n";
+        String message = "imsi:"+"0010100000000"+tmp[2]+tmp[3]+"\nip:"+getLocalIpAddress()+"\nphone:09999999"+tmp[2]+tmp[3]+"\n";
+        forinfo[2] = "0010100000000"+tmp[2]+tmp[3];
+        forinfo[3] = "phone:09999999"+tmp[2]+tmp[3];
+        forinfo[4] = getLocalIpAddress();
         int qos = 0;
-
-
         boolean retained = false;
-
         String[] args = new String[2];
         args[0] = message;
         args[1] = topic;
-
-
-        try {
+        try
+        {
             SharedSocket sh = (SharedSocket)getApplication();
             sh.clientHandle = clientHandle;
             Connections.getInstance(context).getConnection(clientHandle).getClient()
                     .publish(topic, message.getBytes(), qos, retained, null, new ActionListener(context, Action.PUBLISH, clientHandle, args));
         }
-        catch (MqttSecurityException e) {
+        catch (MqttSecurityException e)
+        {
             Log.e(this.getClass().getCanonicalName(), "Failed to publish a messged from the client with the handle " + clientHandle, e);
         }
-        catch (MqttException e) {
+        catch (MqttException e)
+        {
             Log.e(this.getClass().getCanonicalName(), "Failed to publish a messged from the client with the handle " + clientHandle, e);
         }
-
     }
-
-    //get my IP
-    public static String getLocalIpAddress() {
+    /**獲得本地端IP**/
+    public static String getLocalIpAddress()
+    {
         try {
             for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements();) {
                 NetworkInterface intf = en.nextElement();
@@ -408,7 +398,6 @@ public class MainActivity extends Activity {
                     InetAddress inetAddress = enumIpAddr.nextElement();
                     if (!inetAddress.isLoopbackAddress() && inetAddress instanceof Inet4Address) {
                         //Log.e("TAG", inetAddress.getHostAddress());
-
                         return inetAddress.getHostAddress();
                     }
                 }
@@ -423,82 +412,75 @@ public class MainActivity extends Activity {
     LayoutInflater layoutInflater;
     View add;
     String sendb,passwordtest;
+    /**廣播簡訊設定**/
     public void Broadcasting(){
         layoutInflater= LayoutInflater.from(this);
         add = layoutInflater.inflate(R.layout.mqttbroadcastingcheckbox, null);
         newmemalert = new AlertDialog.Builder(this);//對話方塊
         newmemalert.setView(add);
         dialog = newmemalert.show();
-
         ImageView finish = (ImageView) (add.findViewById(R.id.sendbroadcst));
-
         sendbroadcst c = new sendbroadcst();
         finish.setOnClickListener(c);
-
     }
-    class sendbroadcst implements View.OnClickListener {
+    /**送出廣播簡訊**/
+    class sendbroadcst implements View.OnClickListener
+    {
         @Override
-        public void onClick(View v) {
+        public void onClick(View v)
+        {
             final EditText e = (EditText)add.findViewById(R.id.msg);
             if ("".equals(e.getText().toString().trim())) {
                 Toast.makeText(getApplicationContext(), "Please fill text field!", Toast.LENGTH_SHORT).show();
             }
             else
             {
-                Thread thread2 = new Thread(new Runnable() {
-
+                Thread thread2 = new Thread(new Runnable()
+                {
                     @Override
-                    public void run() {
-                        // TODO Auto-generated method stub
-
+                    public void run()
+                    {
                         publish2(e.getText().toString());
-
                     }
                 });
                 thread2.start();
             }
         }
     }
+    /**publish to topic >> MQTT_SMS_SEND，廣播簡訊用到**/
     void publish2(String msg)
     {
-        String topic = "MQTT_SMS";
-
+        String topic = "MQTT_SMS_SEND";
         SharedSocket sh = (SharedSocket)getApplication();
         String message = sh.id + ":"+msg;
+        Log.e("msg",message);
         int qos = 0;
-
-
         boolean retained = false;
-
-
         String[] args = new String[2];
         args[0] = message;
         args[1] = topic;
-
-        try {
+        try
+        {
             Connections.getInstance(this).getConnection(sh.clientHandle).getClient()
                     .publish(topic, message.getBytes(), qos, retained, null, new ActionListener(this, ActionListener.Action.PUBLISH, sh.clientHandle, args));
-
             handler.post(connecttoserversuccess2);
-
         }
-        catch (MqttSecurityException e) {
-            Log.e(this.getClass().getCanonicalName(), "Failed to publish a messged from the client with the handle " + clientHandle, e);
+        catch (MqttSecurityException e)
+        {
+            Log.e(this.getClass().getCanonicalName(), "Failed to publish a messaged from the client with the handle " + clientHandle, e);
         }
-        catch (MqttException e) {
-            Log.e(this.getClass().getCanonicalName(), "Failed to publish a messged from the client with the handle " + clientHandle, e);
+        catch (MqttException e)
+        {
+            Log.e(this.getClass().getCanonicalName(), "Failed to publish a messaged from the client with the handle " + clientHandle, e);
         }
-
     }
-
+    /**語音廣播**/
     public void AudioBroadcasting(){
-
         layoutInflater= LayoutInflater.from(this);
         add = layoutInflater.inflate(R.layout.audiobroadcastcheckbox, null);
         newmemalert = new AlertDialog.Builder(this);//對話方塊
         newmemalert.setView(add);
         dialog = newmemalert.show();
-
         RelativeLayout live = (RelativeLayout)add.findViewById(R.id.Live);
         RelativeLayout watch = (RelativeLayout)add.findViewById(R.id.Watch);
         liveOnClickListener f = new liveOnClickListener();
@@ -506,7 +488,9 @@ public class MainActivity extends Activity {
         watchOnClickListener f2 = new watchOnClickListener();
         watch.setOnClickListener(f2);
     }
-    class liveOnClickListener implements View.OnClickListener {
+    /**建立廣播語音的頻道**/
+    class liveOnClickListener implements View.OnClickListener
+    {
         public void onClick(View v){
             Intent i = new Intent();
             i.setClass(MainActivity.this, MQTTAudioBroadcast
@@ -514,32 +498,30 @@ public class MainActivity extends Activity {
             startActivity(i);
             dialog.dismiss();
         }
-
     }
+    /**收聽廣播語音的頻道**/
     class watchOnClickListener implements View.OnClickListener {
         public void onClick(View v){
             Intent i = new Intent();
             i.setClass(MainActivity.this, MQTTBroadcastMemberList.class);
             startActivity(i);
             dialog.dismiss();
-
         }
     }
     Runnable connecttoserversuccess2 = new Runnable() {
         @Override
         public void run() {
-            Toast.makeText(getApplicationContext(), "Success !", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "Success!", Toast.LENGTH_SHORT).show();
         }
     };
-
+    /**視訊通話**/
     public void videoCall(){
-
         Intent i = new Intent();
         i.setClass(MainActivity.this, MQTTvideoCall.class);
         startActivity(i);
-        finish();
-
+        //finish();
     }
+    /**按下返回鍵**/
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if ((keyCode == KeyEvent.KEYCODE_BACK)) {   //確定按下退出鍵
             new AlertDialog.Builder(MainActivity.this)//對話方塊
@@ -581,6 +563,7 @@ public class MainActivity extends Activity {
                         WAKE_LOCK},
                 request);
     }
+    /**確認使用者有給予權限**/
     public void onRequestPermissionsResult(int requestCode,
                                            String permissions[], int[] grantResults) {
         switch (requestCode) {
@@ -591,7 +574,7 @@ public class MainActivity extends Activity {
 
                 }
                 else {
-                    Toast.makeText(getApplicationContext(), "Permission Denied !", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), "Permission Denied!", Toast.LENGTH_LONG).show();
                 }
                 return;
             }

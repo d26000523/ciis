@@ -49,8 +49,10 @@ public class MQTTSingleCall extends ActionBarActivity {
             String single[] = user[i].split("\n|:");
             HashMap<String, Object> map = new HashMap<String, Object>();
 
+            String ItemName = (single[6].split("\\."))[2]+"_"+(single[6].split("\\."))[3];
+
             map.put("ItemImage", R.drawable.boy);
-            map.put("ItemName", single[2]);
+            map.put("ItemName", ItemName);
             map.put("ItemPhone", single[6]);
             map.put("ItemClick", R.drawable.checkwhite);
             Item.add(map);
@@ -68,7 +70,6 @@ public class MQTTSingleCall extends ActionBarActivity {
         friendview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                //"收件夾"0,"通訊錄"1,"簡訊"2,"多人簡訊"3,"廣播簡訊"4,"語音通話"5,"視訊通話"6,"其他設定"7
                 Btnadapter.changefocus(position, R.drawable.checkwhite, R.drawable.checkblue);
                 friendview.setAdapter(Btnadapter);
                 select = position;
@@ -86,7 +87,7 @@ public class MQTTSingleCall extends ActionBarActivity {
     public void startphonecall(View v){
 
         if(checknum==0){
-            Toast.makeText(getApplicationContext(), "Choose Someone!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "Choose One!", Toast.LENGTH_SHORT).show();
         }else{
 
             //發出通知
@@ -108,17 +109,16 @@ public class MQTTSingleCall extends ActionBarActivity {
             ImageView im = (ImageView)add.findViewById(R.id.groupcalling);
             TextView gr = (TextView)add.findViewById(R.id.group);
             im.setImageResource(R.drawable.group0);
-            gr.setText("10.200.58."+Item.get(select).get("ItemName").toString());
+            gr.setText("From User : "+Item.get(select).get("ItemName").toString());
             gr.setTextColor(Color.parseColor("#FE9C02"));
-
             //開始傳音訊
-            final CallVoice callvoice = new CallVoice(this, new InetSocketAddress("10.200.58."+Item.get(select).get("ItemName").toString(), 10003));
+            final CallVoice callvoice = new CallVoice(this, new InetSocketAddress("10.58."+Item.get(select).get("ItemName").toString().replace("_","."), 10003));
+
             try {
                 callvoice.startPhone();
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
             LinearLayout endcall = (LinearLayout)add.findViewById(R.id.Endcall);
             endcall.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -131,41 +131,26 @@ public class MQTTSingleCall extends ActionBarActivity {
                     }
                 }
             });
-
-
-
         }
-
     }
 
-
-
-
     void publish(String target, String msg){
-
-        String topic = "MQTT_SMS_$("+target+")";
-
+        String topic = "MQTT_SMS_SEND_$("+target+")";
         SharedSocket sh = (SharedSocket)getApplication();
         String message = msg;
         int qos = 0;
-
         boolean retained = false;
-
         String[] args = new String[2];
         args[0] = message;
         args[1] = topic;
-
         try {
             Connections.getInstance(MQTTSingleCall.this).getConnection(sh.clientHandle).getClient()
                     .publish(topic, message.getBytes(), qos, retained, null, new ActionListener(MQTTSingleCall.this, ActionListener.Action.PUBLISH, sh.clientHandle, args));
         }catch (MqttSecurityException e) {
-            Log.e(this.getClass().getCanonicalName(), "Failed to publish a messged from the client with the handle " + sh.clientHandle, e);
+            Log.e(this.getClass().getCanonicalName(), "Failed to publish a messaged from the client with the handle " + sh.clientHandle, e);
         }catch (MqttException e) {
-            Log.e(this.getClass().getCanonicalName(), "Failed to publish a messged from the client with the handle " + sh.clientHandle, e);
+            Log.e(this.getClass().getCanonicalName(), "Failed to publish a messaged from the client with the handle " + sh.clientHandle, e);
         }
-
     }
-
-
 }
 

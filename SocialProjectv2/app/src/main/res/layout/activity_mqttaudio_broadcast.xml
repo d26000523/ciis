@@ -5,27 +5,6 @@
     android:background="@drawable/bg">
 
 
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="fill_parent"
-        android:layout_height="50dip"
-        android:baselineAligned="false"
-        android:background="#12B374"
-        android:gravity="center_vertical">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Online User"
-            android:id="@+id/onlinenum"
-            android:textSize="25dp"
-            android:textColor="#FFFFFF"
-            android:layout_centerVertical="true"
-            android:layout_centerHorizontal="true"
-            android:layout_marginLeft="20dp" />
-
-    </LinearLayout>
-
     <ListView
         android:layout_width="wrap_content"
         android:layout_height="0dp"

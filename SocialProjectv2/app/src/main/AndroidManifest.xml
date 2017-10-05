@@ -97,11 +97,17 @@
         <activity
             android:name=".Video.videolive_receiver"
             android:screenOrientation="portrait" />
-        <activity android:name=".Voice.voicegroup" android:screenOrientation="portrait"/>
-        <activity android:name=".Voice.groupchatlistcheck" android:screenOrientation="portrait"/>
-        <activity android:name=".Voice.VoiceGroupListener" android:screenOrientation="portrait" />
-
-
+        <activity
+            android:name=".Voice.voicegroup"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".Voice.groupchatlistcheck"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".Voice.VoiceGroupListener"
+            android:screenOrientation="portrait" />
+        <activity android:name=".MQTT.Mqtt_userinfo" />
+        <activity android:name=".MQTT.MQTT_videostart"></activity>
     </application>
 
 </manifest>

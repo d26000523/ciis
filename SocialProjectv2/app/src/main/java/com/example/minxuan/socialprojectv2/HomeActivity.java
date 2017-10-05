@@ -1,6 +1,5 @@
 package com.example.minxuan.socialprojectv2;
 
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -45,6 +44,7 @@ public class HomeActivity extends AppCompatActivity {
     private Button login;
     private Button create;
     private static final int request = 1;
+    Boolean checkfill = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -113,6 +113,7 @@ public class HomeActivity extends AppCompatActivity {
         if("".compareTo(account)==0 || "".compareTo(password)==0 || "".compareTo(serverAddr)==0){
             Toast.makeText(getApplicationContext(), "Please fill every field!", Toast.LENGTH_SHORT).show();
         }else{
+            checkfill = true;
             String[] userinfo = new String[3];
             userinfo[0] = serverAddr;
             userinfo[1] = account;
@@ -133,35 +134,35 @@ public class HomeActivity extends AppCompatActivity {
         /** 宣告WebSocketClient*/
         NetworkClientHandler.setNetworkClient(serverAddr, account, password);
         NetworkClientHandler.networkClient.setActivity(HomeActivity.this);
-        final ProgressDialog progressDialog = new ProgressDialog(this);
-        progressDialog.setTitle("Loading...");
-        progressDialog.setMessage("loading for sign in...");
-        progressDialog.setCancelable(false);
-        progressDialog.show();
 
         new Thread(new Runnable() {
             @Override
             public void run() {
+
                 try {
                     Thread.sleep(2000);
-
-                    /** 整理登入訊息*/
-                    Gson gson = new Gson();
-                    Message message = new Message();
-                    message.setTAG("LOGIN");
-                    message.setAccount(account);
-                    message.setPassword(password);
-                    message.setMessage(NetworkClientHandler.getLocalIpAddress());
-                    String gsonStr = gson.toJson(message);
-
-                    NetworkClientHandler.networkClient.webSocketClient.send(gsonStr);
-                    progressDialog.dismiss();
-
                 } catch (InterruptedException e) {
                     e.printStackTrace();
-                    Intent intent = new Intent();
-                    intent.setClass(HomeActivity.this, MainActivity.class);
-                    startActivity(intent);
+                }
+                /** 整理登入訊息*/
+                Gson gson = new Gson();
+                Message message = new Message();
+                message.setTAG("LOGIN");
+                message.setAccount(account);
+                message.setPassword(password);
+                message.setMessage(NetworkClientHandler.getLocalIpAddress());
+                String gsonStr = gson.toJson(message);
+
+                /** 送出登入訊息*/
+                try{
+                    NetworkClientHandler.networkClient.webSocketClient.send(gsonStr);
+                }catch (Exception e){
+                    if(checkfill==true)
+                    {
+                        Intent intent = new Intent();
+                        intent.setClass(HomeActivity.this, MainActivity.class);
+                        startActivity(intent);
+                    }
                 }
             }
         }).start();

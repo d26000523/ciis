@@ -8,7 +8,7 @@ import android.util.Log;
 
 public class AccountHandler {
 
-    public static String adminPassword = "ciisciis";
+    public static String adminPassword = "Gemtek";
     public static String account;
     public static String password;
     public static String firstName;

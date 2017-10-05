@@ -3,7 +3,6 @@ package com.example.minxuan.socialprojectv2.Video;
 import android.content.Context;
 import android.media.MediaCodec;
 import android.media.MediaFormat;
-import android.util.Log;
 import android.view.Surface;
 
 import java.io.ByteArrayOutputStream;

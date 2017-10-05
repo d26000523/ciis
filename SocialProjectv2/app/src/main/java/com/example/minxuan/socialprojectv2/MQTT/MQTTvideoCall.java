@@ -13,7 +13,6 @@ import android.widget.Toast;
 import com.example.minxuan.socialprojectv2.ListviewAdapter.messagesendadapter;
 import com.example.minxuan.socialprojectv2.R;
 import com.example.minxuan.socialprojectv2.SharedSocket;
-import com.example.minxuan.socialprojectv2.Video.StartSingleCall;
 
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttSecurityException;
@@ -51,7 +50,6 @@ public class MQTTvideoCall extends AppCompatActivity {
             Item.add(map);
         }
 
-
         final ListView friendview = (ListView)findViewById(R.id.friendlistMQTTVideoCall);
         final messagesendadapter Btnadapter = new messagesendadapter(
                 this,
@@ -73,7 +71,6 @@ public class MQTTvideoCall extends AppCompatActivity {
     }
 
     public void StartVideoMQTTVideoCall(View v){
-
         if(checknum==0){
             Toast.makeText(getApplicationContext(), "Choose Someone !", Toast.LENGTH_SHORT).show();
         }else{
@@ -81,45 +78,34 @@ public class MQTTvideoCall extends AppCompatActivity {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    publish(Item.get(callposition).get("ItemName").toString(), "VideoCall_"+sh.LocalAddress);
+                    String[] tmp = Item.get(callposition).get("ItemPhone").toString().split("\\.");
+                    publish(tmp[2]+"_"+tmp[3], "VideoCall_"+sh.LocalAddress);
                 }
             }).start();
 
             Intent intent = new Intent();
-            Bundle bundle = new Bundle();
-            bundle.putString("ip", "10.200.58."+Item.get(callposition).get("ItemName").toString());
-            bundle.putString("service", "MQTT");
-            intent.putExtras(bundle);
-            intent.setClass(MQTTvideoCall.this, StartSingleCall.class);
+            intent.putExtra("ip", Item.get(callposition).get("ItemPhone").toString().replace("_","."));
+            intent.setClass(MQTTvideoCall.this,MQTT_videostart.class);
             startActivity(intent);
-            finish();
         }
-
     }
 
     void publish(String target, String msg){
-
-        String topic = "MQTT_SMS_$("+target+")";
-
+        String topic = "MQTT_SMS_SEND_$("+target+")";
         SharedSocket sh = (SharedSocket)getApplication();
         String message = msg;
         int qos = 0;
-
         boolean retained = false;
-
         String[] args = new String[2];
         args[0] = message;
         args[1] = topic;
-
         try {
             Connections.getInstance(MQTTvideoCall.this).getConnection(sh.clientHandle).getClient()
                     .publish(topic, message.getBytes(), qos, retained, null, new ActionListener(MQTTvideoCall.this, ActionListener.Action.PUBLISH, sh.clientHandle, args));
         }catch (MqttSecurityException e) {
-            Log.e(this.getClass().getCanonicalName(), "Failed to publish a messged from the client with the handle " + sh.clientHandle, e);
+            Log.e(this.getClass().getCanonicalName(), "Failed to publish a messaged from the client with the handle " + sh.clientHandle, e);
         }catch (MqttException e) {
-            Log.e(this.getClass().getCanonicalName(), "Failed to publish a messged from the client with the handle " + sh.clientHandle, e);
+            Log.e(this.getClass().getCanonicalName(), "Failed to publish a messaged from the client with the handle " + sh.clientHandle, e);
         }
-
     }
-
 }

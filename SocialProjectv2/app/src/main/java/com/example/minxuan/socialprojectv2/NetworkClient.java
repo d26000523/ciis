@@ -188,7 +188,6 @@ public class NetworkClient {
                     switch(mess.getTAG()){
                         case "VOICE_SINGLE":
                             if(mess.getMessage().compareTo("REQUEST")==0){  /** 收到請求*/
-                                System.out.println("REQUEST" + mess.getIp());
                                 NetworkClientHandler.StreamingTarget = mess.getIp();
                                 NetworkClientHandler.isStreaming = true;
 
@@ -201,7 +200,6 @@ public class NetworkClient {
                                 activity.startActivity(intent);
 
                             }else if(mess.getMessage().compareTo("ACCEPT")==0){ /** 收到接受*/
-                                System.out.println("ACCEPT" + mess.getIp());
                                 NetworkClientHandler.StreamingTarget = mess.getIp();
                                 NetworkClientHandler.isStreaming = true;
                             }
@@ -245,12 +243,12 @@ public class NetworkClient {
 
                 @Override
                 public void onClose(int code, String reason, boolean remote) {
-
+                    isConnected = false;
                 }
 
                 @Override
                 public void onError(Exception e) {
-
+                    isConnected = false;
                     e.printStackTrace();
                 }
             };

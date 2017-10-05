@@ -86,9 +86,9 @@ public class SendMessage extends Activity {
 
         /** 防呆機制*/
         if(checkcount==0){
-            Toast.makeText(getApplicationContext(), "請選擇目標!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "Please Choose Someone!", Toast.LENGTH_SHORT).show();
         }else if("".compareTo(editText.getText().toString())==0){
-            Toast.makeText(getApplicationContext(), "請確實輸入訊息!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "Please fill text field!", Toast.LENGTH_SHORT).show();
         }else{
             /** 整理訊息*/
             String gsonTemp = "";
@@ -114,7 +114,7 @@ public class SendMessage extends Activity {
 
             /** 發送訊息*/
             NetworkClientHandler.networkClient.webSocketClient.send(gsonTemp);
-            Toast.makeText(SendMessage.this, "訊息發送完成!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(SendMessage.this, "Success!", Toast.LENGTH_SHORT).show();
             editText.setText("");
         }
 

@@ -7,10 +7,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import com.example.minxuan.socialprojectv2.Contacts.ContactsHandler;
-import com.example.minxuan.socialprojectv2.NetworkClientHandler;
 import com.example.minxuan.socialprojectv2.R;
 
 import java.io.FileInputStream;
@@ -49,7 +47,6 @@ public class VoiceSingleCall extends AppCompatActivity {
 
             @Override
             public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
-
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
@@ -60,7 +57,6 @@ public class VoiceSingleCall extends AppCompatActivity {
                         Log.e("key", ContactsHandler.item.get(position).get("ItemPhone").toString());
                         i.putExtras(bundle);
                         i.setClass(VoiceSingleCall.this, Startvoicecall.class);
-
                         startActivity(i);
                     }
                 }).start();

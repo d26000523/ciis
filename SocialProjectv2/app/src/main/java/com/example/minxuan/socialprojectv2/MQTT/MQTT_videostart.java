@@ -1,4 +1,4 @@
-package com.example.minxuan.socialprojectv2.Video;
+package com.example.minxuan.socialprojectv2.MQTT;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -17,14 +17,12 @@ import android.view.SurfaceView;
 import android.view.TextureView;
 import android.view.View;
 
-import com.example.minxuan.socialprojectv2.AccountHandler;
 import com.example.minxuan.socialprojectv2.HomeActivity;
-import com.example.minxuan.socialprojectv2.MenuPage.Menupage;
-import com.example.minxuan.socialprojectv2.Message;
 import com.example.minxuan.socialprojectv2.NetworkClientHandler;
 import com.example.minxuan.socialprojectv2.R;
+import com.example.minxuan.socialprojectv2.Video.Decoder;
+import com.example.minxuan.socialprojectv2.Video.Encoder;
 import com.example.minxuan.socialprojectv2.Voice.CallVoice;
-import com.google.gson.Gson;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -36,8 +34,7 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 
-public class StartSingleCall extends Activity implements SurfaceHolder.Callback,TextureView.SurfaceTextureListener, Camera.PreviewCallback {
-
+public class MQTT_videostart extends Activity implements SurfaceHolder.Callback,TextureView.SurfaceTextureListener, Camera.PreviewCallback {
     /**********************傳送端變數**********************/
     private final static String TAG = HomeActivity.class.getSimpleName();
     private final static String SP_CAM_WIDTH = "cam_width";/**鏡頭寬度(surface寬度)**/
@@ -45,7 +42,7 @@ public class StartSingleCall extends Activity implements SurfaceHolder.Callback,
     private final static String SP_DEST_IP = "dest_ip";/**目標IP**/
     private final static String SP_DEST_PORT = "dest_port";/**目標Port**/
     private final static int DEFAULT_FRAME_RATE = 15;/**偵率，越高越流暢(原本設定15)**/
-    private final static int DEFAULT_BIT_RATE = 500000;/**碼率，這個值越高，影像越清晰，但流量越大**/
+    private static int DEFAULT_BIT_RATE = 500000;/**碼率，這個值越高，影像越清晰，但流量越大**/
     private int PACKET_SIZE = 1300;/**封包大小**/
     /**鏡頭方向0後 1前**/
     static int cameraPosition = 1;
@@ -64,117 +61,46 @@ public class StartSingleCall extends Activity implements SurfaceHolder.Callback,
     /********************接收端變數**********************/
     private Decoder mDecoder = null;
     private TextureView mTextureView;
-
-    ///test global value for reduce memory size
-    private byte[] encData;
-    private int splitIndex = 0;
-    private boolean tail = false;
-    private int length = 0;
-    private ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-    String mode = "normal";
-
+    String ip = null;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_start_single_call);
+        setContentView(R.layout.activity_mqtt_videostart);
+        Intent intent = getIntent();
+        ip = intent.getStringExtra("ip");
 
-        final Bundle bundle = this.getIntent().getExtras();
+        NetworkClientHandler.StreamingTarget = ip;
 
-        if(bundle.get("MODE").toString().compareTo("REQUEST")==0){
-            String targetPhone = bundle.getString("key");
-
-            /** 整理要求視訊訊息*/
-            Gson gson = new Gson();
-            Message message = new Message();
-            message.setTAG("VIDEO_SINGLE");
-            message.setSender(AccountHandler.phoneNumber);
-            message.setReceiver(targetPhone);
-            message.setIP(AccountHandler.IP);
-            message.setMessage("REQUEST");
-            String gsonStr = gson.toJson(message);
-
-            /** 送出訊息*/
-            NetworkClientHandler.networkClient.webSocketClient.send(gsonStr);
-
-            /** 等待對方接聽*/
-            while(!NetworkClientHandler.isStreaming){
-
-            }
-            ok();
-        }else if(bundle.get("MODE").toString().compareTo("ACCEPT")==0){
-
-            String targetPhone = bundle.get("TARGET").toString();
-
-            /** 整理接受視訊訊息*/
-            Gson gson = new Gson();
-            Message message = new Message();
-            message.setTAG("VIDEO_SINGLE");
-            message.setSender(AccountHandler.phoneNumber);
-            message.setReceiver(targetPhone);
-            message.setIP(AccountHandler.IP);
-            message.setMessage("ACCEPT");
-            String gsonStr = gson.toJson(message);
-
-            /** 送出訊息*/
-            NetworkClientHandler.networkClient.webSocketClient.send(gsonStr);
-            check();
-        }
         /**調用預覽介面，預覽我們要傳送的畫面**/
         SurfaceView local = (SurfaceView) this.findViewById(R.id.local);
         this.previewHolder = local.getHolder();
         this.previewHolder.addCallback(this);
 
         /*******************************************接收影像顯示用的Tectureview**************************************/
-
         mTextureView = (TextureView) this.findViewById(R.id.remote);
         mTextureView.setSurfaceTextureListener(this);
         mTextureView.setRotation(270.0f);
 
+        ok();
+    }
 
-    }
-    public void check()
-    {
-        /**讓使用者決定要不要接**/
-        new AlertDialog.Builder(StartSingleCall.this)//對話方塊
-                .setIcon(R.mipmap.ic_launcher)
-                .setTitle("You get a video call !")
-                .setMessage("Answer It ?")
-                .setCancelable(false)
-                .setPositiveButton("No", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        Intent i = new Intent();
-                        i.setClass(StartSingleCall.this, Menupage.class);
-                        finish();
-                        startActivity(i);
-                    }
-                })
-                .setNegativeButton("Answer",new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        ok();
-                    }
-                })
-                .show();
-    }
     public void ok()
     {
         /**開始串流需要的資訊是:對方的IP以及雙方共同的port**/
         final CallVoice callvoice = new CallVoice(this, new InetSocketAddress(NetworkClientHandler.StreamingTarget, 10003));
         startStream(NetworkClientHandler.StreamingTarget, 10002);
-        Log.e("TARGET", NetworkClientHandler.StreamingTarget);
 
         /*********************************傳送端執行****************************************/
-        SharedPreferences sp = StartSingleCall.this.getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences sp = MQTT_videostart.this.getPreferences(Context.MODE_PRIVATE);
         sp.edit().putInt(SP_CAM_WIDTH, 320).commit();
         sp.edit().putInt(SP_CAM_HEIGHT,240).commit();
 
         /**是否結束的按鈕監聽**/
-        this.findViewById(R.id.exit).setOnClickListener(
+        this.findViewById(R.id.exitmv).setOnClickListener(
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        new AlertDialog.Builder(StartSingleCall.this)//對話方塊
+                        new AlertDialog.Builder(MQTT_videostart.this)//對話方塊
                                 .setIcon(R.mipmap.ic_launcher)
                                 .setTitle("Leave Video Call")
                                 .setMessage("Are You Sure?")
@@ -189,15 +115,17 @@ public class StartSingleCall extends Activity implements SurfaceHolder.Callback,
                                     public void onClick(DialogInterface dialog, int which) {
                                         try{
                                             callvoice.stopPhone();
+                                            stopStream();
+                                            if (encoder != null)
+                                                encoder.close();
                                         }catch (Exception e){
                                             e.printStackTrace();
                                         }
                                         dialog.dismiss();
-                                            Intent i = new Intent();
-                                            i.setClass(StartSingleCall.this, Menupage.class);
-                                            finish();
-                                            startActivity(i);
-
+                                        Intent i = new Intent();
+                                        i.setClass(MQTT_videostart.this, MainActivity.class);
+                                        finish();
+                                        startActivity(i);
                                     }
                                 })
                                 .show();
@@ -215,7 +143,6 @@ public class StartSingleCall extends Activity implements SurfaceHolder.Callback,
     }
     @Override
     public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
-
         Surface mDecoderSurface=new Surface(surface);
         mDecoder=new Decoder(mDecoderSurface,10002,this,1300);
         mDecoder.startDecoding();
@@ -265,36 +192,38 @@ public class StartSingleCall extends Activity implements SurfaceHolder.Callback,
     }
     /**開始串流(傳輸影像)**/
     private void startStream(String ip, int port) {
-        SharedPreferences sp = this.getPreferences(Context.MODE_PRIVATE);
-        /**********創建編碼器**********/
+    SharedPreferences sp = this.getPreferences(Context.MODE_PRIVATE);
+    /**********創建編碼器**********/
         this.encoder = new Encoder();
-        this.encoder.init(320, 240, DEFAULT_FRAME_RATE, DEFAULT_BIT_RATE);
 
-        /**UDP嘗試送封包**/
+        this.DEFAULT_BIT_RATE = DEFAULT_BIT_RATE;
+
+        this.encoder.init(320,240, DEFAULT_FRAME_RATE, DEFAULT_BIT_RATE);
+    /**UDP嘗試送封包**/
         try {
-            this.udpSocket = new DatagramSocket();
-            this.address = InetAddress.getByName(ip);
-            this.port = port;
-        } catch (SocketException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-            return;
-        } catch (UnknownHostException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-            return;
-        }
+        this.udpSocket = new DatagramSocket();
+        this.address = InetAddress.getByName(ip);
+        this.port = port;
+    } catch (SocketException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+        return;
+    } catch (UnknownHostException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+        return;
+    }
         sp.edit().putString(SP_DEST_IP, ip).commit();
         sp.edit().putInt(SP_DEST_PORT, port).commit();
-
         this.isStreaming = true;
-        Thread thrd = new Thread(senderRun);
+    Thread thrd = new Thread(senderRun);
         thrd.start();
-    }
+}
     /**當有新視訊資料要送**/
     @Override
     public void onPreviewFrame(byte[] data, Camera camera) {
         this.camera.addCallbackBuffer(this.previewBuffer);
+//        Log.d("initdata0",String.valueOf(data.length));
 
         if (this.isStreaming) {
             if (this.encDataLengthList.size() > 100)
@@ -302,12 +231,24 @@ public class StartSingleCall extends Activity implements SurfaceHolder.Callback,
                 return;
             }
             //data經過h.264壓縮成encData分兩組frame(i,p)
-            encData = this.encoder.data_change(data);
-            //設置封包編號與結尾判斷
-            splitIndex = 0;
-            tail = false;
-            //將壓縮大小依序切割放入封包中，前兩碼為編號及是否結尾
-//            Log.i("i","split start");
+            byte[] encData = this.encoder.data_change(data);
+            Log.d("encDatainit",String.valueOf(encData.length));
+
+
+//            if (encData.length > 0) {
+//                synchronized (this.encDataList) {
+//                    this.encDataList.add(encData);
+//                }
+//            }
+
+
+
+            int splitIndex = 0;
+            boolean tail;
+
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            int length;
+            Log.i("i","split start");
             while(encData.length> (PACKET_SIZE-2)*splitIndex){
                 if(encData.length-(PACKET_SIZE-2)*(splitIndex+1)>0) {
                     length = PACKET_SIZE-2;
@@ -324,29 +265,27 @@ public class StartSingleCall extends Activity implements SurfaceHolder.Callback,
                     //header 依序為 index, tail, splitData
                     outputStream.write(splitIndex);
                     if(tail)
-                    {
                         outputStream.write(1);
-                    }
                     else
-                    {
                         outputStream.write(0);
-                    }
                     outputStream.write(splitData);
 
                     byte[] res = outputStream.toByteArray();
 
-                    synchronized (this.encDataList)
-                    {
+                    synchronized (this.encDataList) {
                         this.encDataList.add(res);
-                        //outputStream值清空
-                        outputStream.reset();
-
                     }
+                    Log.d("packetindex",String.valueOf(splitIndex));
+                    Log.d("packettail",String.valueOf(tail));
+
                     splitIndex++;
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
 
+
+                //Log.d("res",String.valueOf(res.length));
+                outputStream.reset();
             }
         }
     }
@@ -417,11 +356,10 @@ public class StartSingleCall extends Activity implements SurfaceHolder.Callback,
             camera.startPreview();
             camera.setDisplayOrientation(180);
         }
-
-        catch (RuntimeException e) {
+        catch (RuntimeException e)
+        {
             //TODO:
         }
-
         catch (IOException e){
             //TODO:
         }
@@ -435,18 +373,8 @@ public class StartSingleCall extends Activity implements SurfaceHolder.Callback,
             camera = null;
         }
     }
-    /********當整個activity暫停*********/
-    @Override
-    protected void onPause() {
-        this.stopStream();
-        if (encoder != null)
-            encoder.close();
-        super.onPause();
-    }
     /********當整個activity結束*********/
     protected void onDestroy() {
         super.onDestroy();
     }
-
 }
-
