@@ -1,5 +1,6 @@
 package com.example.minxuan.socialprojectv2;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -134,7 +135,11 @@ public class HomeActivity extends AppCompatActivity {
         /** 宣告WebSocketClient*/
         NetworkClientHandler.setNetworkClient(serverAddr, account, password);
         NetworkClientHandler.networkClient.setActivity(HomeActivity.this);
-
+        final ProgressDialog dialog = new ProgressDialog(this);
+        dialog.setTitle("Loading...");
+        dialog.setMessage("Loading for sign in...");
+        dialog.setCancelable(false);
+        dialog.show();
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -156,13 +161,22 @@ public class HomeActivity extends AppCompatActivity {
                 /** 送出登入訊息*/
                 try{
                     NetworkClientHandler.networkClient.webSocketClient.send(gsonStr);
+
                 }catch (Exception e){
-                    if(checkfill==true)
+                    if(checkfill)
                     {
                         Intent intent = new Intent();
                         intent.setClass(HomeActivity.this, MainActivity.class);
                         startActivity(intent);
                     }
+                }
+                finally {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            dialog.dismiss();
+                        }
+                    });
                 }
             }
         }).start();
