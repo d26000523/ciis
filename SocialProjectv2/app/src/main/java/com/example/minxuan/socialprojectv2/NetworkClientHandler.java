@@ -18,7 +18,8 @@ public class NetworkClientHandler {
     public static ArrayList<String> watch_list = new ArrayList<>();
     public static byte[] streamingBuffer = new byte[9600];
     public static String serverAddress;
-    public static String streamingServer = "192.168.0.101";
+//    public static String streamingServer = "192.168.0.101";
+    public static String streamingServer = "140.117.168.128";
     public static int LIVE_PORT;
     public static String StreamingTarget;
     public static boolean scenario2 = true;/*false是S1,true是S2*/

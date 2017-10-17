@@ -53,20 +53,15 @@ public class Menupage extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         Log.d("=======================","onDestroy");
-
-
         /** 整理登出訊息*/
         Gson gson = new Gson();
         Message message = new Message();
         message.setTAG("LOGOUT");
         message.setMessage(NetworkClientHandler.getLocalIpAddress());
         String gsonStr = gson.toJson(message);
-
         if(NetworkClientHandler.networkClient!=null){
             NetworkClientHandler.networkClient.webSocketClient.send(gsonStr);
         }
-
-
     }
 
     @Override

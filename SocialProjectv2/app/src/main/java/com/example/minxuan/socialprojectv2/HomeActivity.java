@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
@@ -135,11 +136,12 @@ public class HomeActivity extends AppCompatActivity {
         /** 宣告WebSocketClient*/
         NetworkClientHandler.setNetworkClient(serverAddr, account, password);
         NetworkClientHandler.networkClient.setActivity(HomeActivity.this);
-        final ProgressDialog dialog = new ProgressDialog(this);
-        dialog.setTitle("Loading...");
-        dialog.setMessage("Loading for sign in...");
-        dialog.setCancelable(false);
-        dialog.show();
+        final ProgressDialog progressDialog = new ProgressDialog(this);
+        progressDialog.setTitle("Loading...");
+        progressDialog.setMessage("Loading for sign in...");
+        progressDialog.setCancelable(false);
+        progressDialog.create();
+        progressDialog.show();
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -158,26 +160,35 @@ public class HomeActivity extends AppCompatActivity {
                 message.setMessage(NetworkClientHandler.getLocalIpAddress());
                 String gsonStr = gson.toJson(message);
 
+
                 /** 送出登入訊息*/
                 try{
-                    NetworkClientHandler.networkClient.webSocketClient.send(gsonStr);
-
-                }catch (Exception e){
-                    if(checkfill)
-                    {
-                        Intent intent = new Intent();
-                        intent.setClass(HomeActivity.this, MainActivity.class);
-                        startActivity(intent);
-                    }
-                }
-                finally {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            dialog.dismiss();
+                            progressDialog.dismiss();
                         }
                     });
+                    NetworkClientHandler.networkClient.webSocketClient.send(gsonStr);
+
+                }catch (Exception e){
+                    Log.i("error","error");
+                    if(checkfill==true)
+                    {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                        progressDialog.dismiss();
+                            }
+                        });
+
+                        Intent intent = new Intent();
+                        intent.setClass(HomeActivity.this, MainActivity.class);
+                        startActivity(intent);
+                        finish();
+                    }
                 }
+
             }
         }).start();
 

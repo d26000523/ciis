@@ -1,8 +1,10 @@
 package com.example.minxuan.socialprojectv2;
 
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -203,6 +205,10 @@ public class NetworkClient {
                                 NetworkClientHandler.StreamingTarget = mess.getIp();
                                 NetworkClientHandler.isStreaming = true;
                             }
+                            else if(mess.getMessage().compareTo("CANCEL")==0){  /** 收到取消通話*/
+                                Startvoicecall startvoicecallactivity = (Startvoicecall)activity;
+                                startvoicecallactivity.voiceCancel();
+                            }
                             break;
                     }
                     /**廣播聊天室*/
@@ -265,6 +271,7 @@ public class NetworkClient {
 
     public void setWsAddress(){
         /**要寫技術文件喔*/
+
         this.WsAddress = "ws://" + this.serverAddr + ":8080/WebSocketServerExample/websocketendpoint/" + this.account + "/" + this.password;
     }
 

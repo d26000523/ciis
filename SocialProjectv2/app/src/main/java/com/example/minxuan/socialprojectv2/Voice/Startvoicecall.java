@@ -42,6 +42,7 @@ public class Startvoicecall extends AppCompatActivity {
         setContentView(R.layout.activity_startvoicecall);
         final Bundle bundle = this.getIntent().getExtras();
 
+
         if(bundle.get("VOICE").toString().compareTo("REQUEST")==0){
             String targetPhone = bundle.getString("key");
 
@@ -54,28 +55,18 @@ public class Startvoicecall extends AppCompatActivity {
             message.setIP(AccountHandler.IP);
             message.setMessage("REQUEST");
             String gsonStr = gson.toJson(message);
-
+            NetworkClientHandler.networkClient.setActivity(this);
             /** 送出訊息*/
             NetworkClientHandler.networkClient.webSocketClient.send(gsonStr);
+
             OK();
 
         }else if(bundle.get("VOICE").toString().compareTo("ACCEPT")==0){
 
-            String targetPhone = bundle.get("TARGET").toString();
+            String targetPhone = bundle.getString("TARGET");
+            check(targetPhone);
 
-            /** 整理接受視訊訊息*/
-            Gson gson = new Gson();
-            Message message = new Message();
-            message.setTAG("VOICE_SINGLE");
-            message.setSender(AccountHandler.phoneNumber);
-            message.setReceiver(targetPhone);
-            message.setIP(AccountHandler.IP);
-            message.setMessage("ACCEPT");
-            String gsonStr = gson.toJson(message);
 
-            /** 送出訊息*/
-            NetworkClientHandler.networkClient.webSocketClient.send(gsonStr);
-            check();
         }
         try {
             Thread.sleep(1000);
@@ -83,7 +74,7 @@ public class Startvoicecall extends AppCompatActivity {
             e.printStackTrace();
         }
     }
-    public void check()
+    public void check(final String target)
     {
         /**讓使用者決定要不要接**/
         new AlertDialog.Builder(Startvoicecall.this)//對話方塊
@@ -94,15 +85,37 @@ public class Startvoicecall extends AppCompatActivity {
                 .setPositiveButton("No", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        Intent i = new Intent();
-                        i.setClass(Startvoicecall.this, Menupage.class);
+                        /** 整理掛斷訊息*/
+                        Gson gson = new Gson();
+                        Message message = new Message();
+                        message.setTAG("VOICE_SINGLE");
+                        message.setSender(AccountHandler.phoneNumber);
+                        message.setReceiver(target);
+                        message.setIP(AccountHandler.IP);
+                        message.setMessage("CANCEL");
+                        String gsonStr = gson.toJson(message);
+
+                        /** 送出訊息*/
+                        NetworkClientHandler.networkClient.webSocketClient.send(gsonStr);
                         finish();
-                        startActivity(i);
+
                     }
                 })
                 .setNegativeButton("Answer",new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+                        /** 整理接受訊息*/
+                        Gson gson = new Gson();
+                        Message message = new Message();
+                        message.setTAG("VOICE_SINGLE");
+                        message.setSender(AccountHandler.phoneNumber);
+                        message.setReceiver(target);
+                        message.setIP(AccountHandler.IP);
+                        message.setMessage("ACCEPT");
+                        String gsonStr = gson.toJson(message);
+
+                        /** 送出訊息*/
+                        NetworkClientHandler.networkClient.webSocketClient.send(gsonStr);
                         OK();
                     }
                 })
@@ -125,6 +138,7 @@ public class Startvoicecall extends AppCompatActivity {
         WaveView waveView = (WaveView) add.findViewById(R.id.sendwave);
         waveView.setBorder(10, Color.parseColor("#E9E9E9"),"#00B6DE");
         mWaveHelper = new WaveHelper(waveView);
+
         WaveView waveView2 = (WaveView) add.findViewById(R.id.revwave);
         waveView.setBorder(10, Color.parseColor("#E9E9E9"),"#FDB3C2");
         mWaveHelper2 = new WaveHelper(waveView2);
@@ -135,6 +149,7 @@ public class Startvoicecall extends AppCompatActivity {
                 mWaveHelper2.start();
             }
         }, 1000);
+
         LinearLayout endcall = (LinearLayout)add.findViewById(R.id.Endcall);
         endcallOnClickListener c = new endcallOnClickListener();
         endcall.setOnClickListener(c);
@@ -147,6 +162,24 @@ public class Startvoicecall extends AppCompatActivity {
             e.printStackTrace();
         }
     }
+
+    public void voiceCancel(){
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                AlertDialog.Builder builder = new AlertDialog.Builder(Startvoicecall.this);
+                builder.setTitle("Failed").setMessage("Target user has canceled this request").setCancelable(false);
+                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        finish();
+                    }
+                }).create().show();
+            }
+        });
+
+    }
+
     /**結束群組通話**/
     class endcallOnClickListener implements View.OnClickListener {
         public void onClick(View v){
