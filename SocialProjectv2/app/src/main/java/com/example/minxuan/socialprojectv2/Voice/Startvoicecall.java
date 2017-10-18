@@ -12,6 +12,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.minxuan.socialprojectv2.AccountHandler;
 import com.example.minxuan.socialprojectv2.MQTT.WaveHelper;
@@ -36,15 +37,18 @@ public class Startvoicecall extends AppCompatActivity {
     View add;
     CallVoice callvoice;
 
+    private String targetPhone;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_startvoicecall);
         final Bundle bundle = this.getIntent().getExtras();
 
-
+        NetworkClientHandler.networkClient.setActivity(this);
         if(bundle.get("VOICE").toString().compareTo("REQUEST")==0){
-            String targetPhone = bundle.getString("key");
+            targetPhone = bundle.getString("key");
 
             /** 整理要求通話訊息*/
             Gson gson = new Gson();
@@ -55,15 +59,16 @@ public class Startvoicecall extends AppCompatActivity {
             message.setIP(AccountHandler.IP);
             message.setMessage("REQUEST");
             String gsonStr = gson.toJson(message);
-            NetworkClientHandler.networkClient.setActivity(this);
+
             /** 送出訊息*/
             NetworkClientHandler.networkClient.webSocketClient.send(gsonStr);
+
 
             OK();
 
         }else if(bundle.get("VOICE").toString().compareTo("ACCEPT")==0){
 
-            String targetPhone = bundle.getString("TARGET");
+            targetPhone = bundle.getString("TARGET");
             check(targetPhone);
 
 
@@ -77,28 +82,16 @@ public class Startvoicecall extends AppCompatActivity {
     public void check(final String target)
     {
         /**讓使用者決定要不要接**/
-        new AlertDialog.Builder(Startvoicecall.this)//對話方塊
-                .setIcon(R.mipmap.ic_launcher)
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);//對話方塊
+        builder.setIcon(R.mipmap.ic_launcher)
                 .setTitle("Receive Voice Call")
                 .setMessage("Answer it??")
                 .setCancelable(false)
                 .setPositiveButton("No", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        /** 整理掛斷訊息*/
-                        Gson gson = new Gson();
-                        Message message = new Message();
-                        message.setTAG("VOICE_SINGLE");
-                        message.setSender(AccountHandler.phoneNumber);
-                        message.setReceiver(target);
-                        message.setIP(AccountHandler.IP);
-                        message.setMessage("CANCEL");
-                        String gsonStr = gson.toJson(message);
-
-                        /** 送出訊息*/
-                        NetworkClientHandler.networkClient.webSocketClient.send(gsonStr);
+                        sendCancelMsg(target);
                         finish();
-
                     }
                 })
                 .setNegativeButton("Answer",new DialogInterface.OnClickListener() {
@@ -151,34 +144,73 @@ public class Startvoicecall extends AppCompatActivity {
         }, 1000);
 
         LinearLayout endcall = (LinearLayout)add.findViewById(R.id.Endcall);
+
         endcallOnClickListener c = new endcallOnClickListener();
         endcall.setOnClickListener(c);
-        /**使用CALLVOICE**/
-        try{
-            callvoice = new CallVoice(this, new InetSocketAddress(NetworkClientHandler.StreamingTarget, 10003));
-            Log.e("TAG", NetworkClientHandler.StreamingTarget);
-            callvoice.startPhone();
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+        startPhone();
+    }
+
+    public void startPhone(){
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                /**使用CALLVOICE**/
+                try{
+                    while (NetworkClientHandler.StreamingTarget ==null){}
+                    callvoice = new CallVoice(Startvoicecall.this, new InetSocketAddress(NetworkClientHandler.StreamingTarget, 10003));
+                    Log.e("TAG", NetworkClientHandler.StreamingTarget);
+                    callvoice.startPhone();
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+
+    }
+
+    public void sendCancelMsg(String target){
+        /** 整理掛斷訊息*/
+        Gson gson = new Gson();
+        Message message = new Message();
+        message.setTAG("VOICE_SINGLE");
+        message.setSender(AccountHandler.phoneNumber);
+        message.setReceiver(target);
+        message.setIP(AccountHandler.IP);
+        message.setMessage("CANCEL");
+        String gsonStr = gson.toJson(message);
+
+        /** 送出訊息*/
+        NetworkClientHandler.networkClient.webSocketClient.send(gsonStr);
     }
 
     public void voiceCancel(){
-        runOnUiThread(new Runnable() {
+
+        new Thread(new Runnable() {
             @Override
             public void run() {
-                AlertDialog.Builder builder = new AlertDialog.Builder(Startvoicecall.this);
-                builder.setTitle("Failed").setMessage("Target user has canceled this request").setCancelable(false);
-                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        finish();
-                    }
-                }).create().show();
+                try {
+                    if(callvoice!= null)
+                        callvoice.stopPhone();
+                    if(callDialog!= null)
+                        callDialog.dismiss();
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+
+                            Toast.makeText(Startvoicecall.this,"Finished calling.",Toast.LENGTH_SHORT).show();
+                            finish();
+                        }
+                    });
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
-        });
+        }).start();
+
+
 
     }
+
 
     /**結束群組通話**/
     class endcallOnClickListener implements View.OnClickListener {
@@ -200,9 +232,11 @@ public class Startvoicecall extends AppCompatActivity {
                                 @Override
                                 public void run() {
                                     try {
+                                        sendCancelMsg(targetPhone);
                                         if(callvoice!= null)
                                             callvoice.stopPhone();
                                         callDialog.dismiss();
+
                                         finish();
 
                                     }

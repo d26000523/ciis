@@ -81,10 +81,12 @@ public class CallVoice {
     private void initAudioHardware() throws Exception {
         recBufferSize = 1024;
         playBufferSize = 1024;
-        phoneMIC = new AudioRecord(MediaRecorder.AudioSource.VOICE_RECOGNITION, Sample_Rate,
+        //VOICE_COMMUNICATION
+        phoneMIC = new AudioRecord(MediaRecorder.AudioSource.VOICE_COMMUNICATION, Sample_Rate,
                 Channel_In_Configuration, AudioEncoding, recBufferSize);
         phoneMIC.startRecording();
-        phoneSPK = new AudioTrack(AudioManager.STREAM_MUSIC, Sample_Rate,
+        //STREAM_VOICE_CALL
+        phoneSPK = new AudioTrack(AudioManager.STREAM_VOICE_CALL, Sample_Rate,
                 Channel_Out_Configuration, AudioEncoding, playBufferSize,
                 AudioTrack.MODE_STREAM);
         phoneSPK.setStereoVolume(1f, 1f);
@@ -147,11 +149,9 @@ public class CallVoice {
             @Override
             public void run() {
                 int packnum = 0;
-                while (type==1 && datasock != null) {
+                while (type==1 && datasock != null && !datasock.isClosed()) {
                     try {
                         datasock.receive(Datapack);
-
-
                         phoneSPK.write(Datapack.getData(), 0, Datapack.getData().length);
                     } catch (IOException e) {
                         e.printStackTrace();
