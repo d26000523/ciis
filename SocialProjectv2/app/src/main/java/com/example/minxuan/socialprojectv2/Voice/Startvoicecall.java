@@ -67,11 +67,8 @@ public class Startvoicecall extends AppCompatActivity {
             OK();
 
         }else if(bundle.get("VOICE").toString().compareTo("ACCEPT")==0){
-
             targetPhone = bundle.getString("TARGET");
-            check(targetPhone);
-
-
+            check();
         }
         try {
             Thread.sleep(1000);
@@ -79,7 +76,7 @@ public class Startvoicecall extends AppCompatActivity {
             e.printStackTrace();
         }
     }
-    public void check(final String target)
+    public void check()
     {
         /**讓使用者決定要不要接**/
         AlertDialog.Builder builder = new AlertDialog.Builder(this);//對話方塊
@@ -90,7 +87,7 @@ public class Startvoicecall extends AppCompatActivity {
                 .setPositiveButton("No", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        sendCancelMsg(target);
+                        sendCancelMsg(targetPhone);
                         finish();
                     }
                 })
@@ -102,7 +99,7 @@ public class Startvoicecall extends AppCompatActivity {
                         Message message = new Message();
                         message.setTAG("VOICE_SINGLE");
                         message.setSender(AccountHandler.phoneNumber);
-                        message.setReceiver(target);
+                        message.setReceiver(targetPhone);
                         message.setIP(AccountHandler.IP);
                         message.setMessage("ACCEPT");
                         String gsonStr = gson.toJson(message);
@@ -151,6 +148,7 @@ public class Startvoicecall extends AppCompatActivity {
     }
 
     public void startPhone(){
+        //記得要用實體IP不然會收不到
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -206,9 +204,6 @@ public class Startvoicecall extends AppCompatActivity {
                 }
             }
         }).start();
-
-
-
     }
 
 
@@ -223,6 +218,7 @@ public class Startvoicecall extends AppCompatActivity {
                     .setPositiveButton("Cancel", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
+
                         }
                     })
                     .setNegativeButton("Yes",new DialogInterface.OnClickListener() {

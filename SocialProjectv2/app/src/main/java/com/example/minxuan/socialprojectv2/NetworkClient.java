@@ -184,6 +184,10 @@ public class NetworkClient {
                                 NetworkClientHandler.StreamingTarget = mess.getIp();
                                 NetworkClientHandler.isStreaming = true;
                             }
+                            else if(mess.getMessage().compareTo("CANCEL")==0){  /** 收到取消視訊*/
+                                StartSingleCall startSingleCall = (StartSingleCall)activity;
+                                startSingleCall.voiceCancel();
+                            }
                             break;
                     }
 

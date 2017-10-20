@@ -16,6 +16,7 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.TextureView;
 import android.view.View;
+import android.widget.Toast;
 
 import com.example.minxuan.socialprojectv2.AccountHandler;
 import com.example.minxuan.socialprojectv2.HomeActivity;
@@ -24,6 +25,7 @@ import com.example.minxuan.socialprojectv2.Message;
 import com.example.minxuan.socialprojectv2.NetworkClientHandler;
 import com.example.minxuan.socialprojectv2.R;
 import com.example.minxuan.socialprojectv2.Voice.CallVoice;
+import com.example.minxuan.socialprojectv2.Voice.Startvoicecall;
 import com.google.gson.Gson;
 
 import java.io.ByteArrayOutputStream;
@@ -72,16 +74,36 @@ public class StartSingleCall extends Activity implements SurfaceHolder.Callback,
     private int length = 0;
     private ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
     String mode = "normal";
+    private CallVoice callvoice;
+    private String targetPhone;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_start_single_call);
 
-        final Bundle bundle = this.getIntent().getExtras();
+        /*********************************傳送端執行****************************************/
+        SharedPreferences sp = StartSingleCall.this.getPreferences(Context.MODE_PRIVATE);
+        sp.edit().putInt(SP_CAM_WIDTH, 320).apply();
+        sp.edit().putInt(SP_CAM_HEIGHT,240).apply();
+        /**調用預覽介面，預覽我們要傳送的畫面**/
+        SurfaceView local = (SurfaceView) this.findViewById(R.id.local);
+        this.previewHolder = local.getHolder();
+        this.previewHolder.addCallback(this);
 
+        /*******************************************接收影像顯示用的Tectureview**************************************/
+
+        mTextureView = (TextureView) this.findViewById(R.id.remote);
+        mTextureView.setSurfaceTextureListener(this);
+        mTextureView.setRotation(270.0f);
+        startStream(NetworkClientHandler.StreamingTarget, 10002);
+
+
+
+        final Bundle bundle = this.getIntent().getExtras();
+        NetworkClientHandler.networkClient.setActivity(this);
         if(bundle.get("MODE").toString().compareTo("REQUEST")==0){
-            String targetPhone = bundle.getString("key");
+            targetPhone = bundle.getString("key");
 
             /** 整理要求視訊訊息*/
             Gson gson = new Gson();
@@ -96,40 +118,12 @@ public class StartSingleCall extends Activity implements SurfaceHolder.Callback,
             /** 送出訊息*/
             NetworkClientHandler.networkClient.webSocketClient.send(gsonStr);
 
-            /** 等待對方接聽*/
-            while(!NetworkClientHandler.isStreaming){
 
-            }
             ok();
         }else if(bundle.get("MODE").toString().compareTo("ACCEPT")==0){
-
-            String targetPhone = bundle.get("TARGET").toString();
-
-            /** 整理接受視訊訊息*/
-            Gson gson = new Gson();
-            Message message = new Message();
-            message.setTAG("VIDEO_SINGLE");
-            message.setSender(AccountHandler.phoneNumber);
-            message.setReceiver(targetPhone);
-            message.setIP(AccountHandler.IP);
-            message.setMessage("ACCEPT");
-            String gsonStr = gson.toJson(message);
-
-            /** 送出訊息*/
-            NetworkClientHandler.networkClient.webSocketClient.send(gsonStr);
+            targetPhone = bundle.getString("TARGET");
             check();
         }
-        /**調用預覽介面，預覽我們要傳送的畫面**/
-        SurfaceView local = (SurfaceView) this.findViewById(R.id.local);
-        this.previewHolder = local.getHolder();
-        this.previewHolder.addCallback(this);
-
-        /*******************************************接收影像顯示用的Tectureview**************************************/
-
-        mTextureView = (TextureView) this.findViewById(R.id.remote);
-        mTextureView.setSurfaceTextureListener(this);
-        mTextureView.setRotation(270.0f);
-
 
     }
     public void check()
@@ -143,31 +137,55 @@ public class StartSingleCall extends Activity implements SurfaceHolder.Callback,
                 .setPositiveButton("No", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        Intent i = new Intent();
-                        i.setClass(StartSingleCall.this, Menupage.class);
+                        sendCancelMsg(targetPhone);
                         finish();
-                        startActivity(i);
                     }
                 })
                 .setNegativeButton("Answer",new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+                        /** 整理接受視訊訊息*/
+                        Gson gson = new Gson();
+                        Message message = new Message();
+                        message.setTAG("VIDEO_SINGLE");
+                        message.setSender(AccountHandler.phoneNumber);
+                        message.setReceiver(targetPhone);
+                        message.setIP(AccountHandler.IP);
+                        message.setMessage("ACCEPT");
+                        String gsonStr = gson.toJson(message);
+
+                        /** 送出訊息*/
+                        NetworkClientHandler.networkClient.webSocketClient.send(gsonStr);
                         ok();
                     }
                 })
                 .show();
     }
+
+    private void sendCancelMsg(String targetPhone) {
+        /** 整理拒絕視訊訊息*/
+        Gson gson = new Gson();
+        Message message = new Message();
+        message.setTAG("VIDEO_SINGLE");
+        message.setSender(AccountHandler.phoneNumber);
+        message.setReceiver(targetPhone);
+        message.setIP(AccountHandler.IP);
+        message.setMessage("CANCEL");
+        String gsonStr = gson.toJson(message);
+
+        /** 送出訊息*/
+        NetworkClientHandler.networkClient.webSocketClient.send(gsonStr);
+    }
+
     public void ok()
     {
         /**開始串流需要的資訊是:對方的IP以及雙方共同的port**/
-        final CallVoice callvoice = new CallVoice(this, new InetSocketAddress(NetworkClientHandler.StreamingTarget, 10003));
-        startStream(NetworkClientHandler.StreamingTarget, 10002);
-        Log.e("TARGET", NetworkClientHandler.StreamingTarget);
+        //對方接聽後開始出現聲音
 
-        /*********************************傳送端執行****************************************/
-        SharedPreferences sp = StartSingleCall.this.getPreferences(Context.MODE_PRIVATE);
-        sp.edit().putInt(SP_CAM_WIDTH, 320).commit();
-        sp.edit().putInt(SP_CAM_HEIGHT,240).commit();
+
+//        Log.e("TARGET", NetworkClientHandler.StreamingTarget);
+
+
 
         /**是否結束的按鈕監聽**/
         this.findViewById(R.id.exit).setOnClickListener(
@@ -188,16 +206,14 @@ public class StartSingleCall extends Activity implements SurfaceHolder.Callback,
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         try{
-                                            callvoice.stopPhone();
+                                            if(callvoice!= null)
+                                                callvoice.stopPhone();
                                         }catch (Exception e){
                                             e.printStackTrace();
                                         }
-                                        dialog.dismiss();
-                                            Intent i = new Intent();
-                                            i.setClass(StartSingleCall.this, Menupage.class);
-                                            finish();
-                                            startActivity(i);
+                                        sendCancelMsg(targetPhone);
 
+                                        finish();
                                     }
                                 })
                                 .show();
@@ -206,12 +222,37 @@ public class StartSingleCall extends Activity implements SurfaceHolder.Callback,
         /**使用CALLVOICE**/
         try
         {
+            while (NetworkClientHandler.StreamingTarget ==null){}
+            callvoice = new CallVoice(this, new InetSocketAddress(NetworkClientHandler.StreamingTarget, 10003));
             callvoice.startPhone();
+
         }
         catch (Exception e)
         {
             e.printStackTrace();
         }
+    }
+    public void voiceCancel(){
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    if(callvoice!= null)
+                        callvoice.stopPhone();
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(StartSingleCall.this,"Finished calling.",Toast.LENGTH_SHORT).show();
+                            finish();
+                        }
+                    });
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
     }
     @Override
     public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {

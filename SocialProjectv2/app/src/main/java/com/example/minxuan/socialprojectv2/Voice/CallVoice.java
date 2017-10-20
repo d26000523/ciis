@@ -47,9 +47,11 @@ public class CallVoice {
         //初始化(和Server連接)
         //datasock = new DatagramSocket(10000);
         this.ClientAddress = clientAddress;
+
         this.context = context;
         try {
             datasock = new DatagramSocket(10003);
+            datasock.setSoTimeout(5000);
         } catch (SocketException e) {
             e.printStackTrace();
         }
@@ -97,7 +99,7 @@ public class CallVoice {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                while ((!Thread.interrupted()) && type==1 ) {
+                while (type==1) {
                     short[] compressedVoice = new short[recBufferSize/2];
                     byte[] compressedVoice2 = new byte[recBufferSize];
                     int b = phoneMIC.read(compressedVoice, 0, recBufferSize/2);
@@ -145,19 +147,23 @@ public class CallVoice {
         }
     }
     private void speak(){
+        System.out.println("phoneSPK" + phoneSPK.getState());
         new Thread(new Runnable() {
             @Override
             public void run() {
                 int packnum = 0;
-                while (type==1 && datasock != null && !datasock.isClosed()) {
+                while (type==1 && datasock != null) {
                     try {
+
                         datasock.receive(Datapack);
                         phoneSPK.write(Datapack.getData(), 0, Datapack.getData().length);
+
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
 
                 }
+
             }
         }).start();
 

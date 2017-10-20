@@ -69,13 +69,11 @@ public class Decoder {
         /**Buffer大小**/
         byte[] message = new byte[PACKET_SIZE];
         DatagramPacket p = new DatagramPacket(message, message.length);
-
-
         try
         {
             data_sk = new DatagramSocket(this.port);
             /**封包接收間隔時間**/
-            data_sk.setSoTimeout(100);
+            data_sk.setSoTimeout(5000);
         }
         catch (SocketException e)
         {
@@ -95,7 +93,7 @@ public class Decoder {
 //                        packetIndex = -1;
 //                        break;
 //                    }
-//                    Log.d("data_sk:",String.valueOf(data_sk.getSendBufferSize()));
+//                    Log.d("data_sk:",String.valueOf(data_s0k.getSendBufferSize()));
                     data_sk.receive(p);
 
                     Log.d("packetsize:",String.valueOf(p.getLength()));
