@@ -35,6 +35,9 @@ public class UdpClient {
             public void run() {
                 try {
                     doSend(serverAddress, (type+","+phone).getBytes());   /** 送出註冊訊息*/
+
+
+
                     broadcast("[System]: Register success.");
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -50,6 +53,9 @@ public class UdpClient {
 
     public void doSend(SocketAddress addr, byte[] data) throws Exception {
         DatagramPacket pack = new DatagramPacket(data, data.length, addr);
+        System.out.println(addr);
+        System.out.println(data);
+        System.out.println(data.length);
         ds.send(pack);
     }
     public void broadcast(String message) {

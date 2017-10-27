@@ -99,7 +99,7 @@ public class CallVoice {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                while (type==1) {
+                while (type==1 && ClientAddress!= null) {
                     short[] compressedVoice = new short[recBufferSize/2];
                     byte[] compressedVoice2 = new byte[recBufferSize];
                     int b = phoneMIC.read(compressedVoice, 0, recBufferSize/2);

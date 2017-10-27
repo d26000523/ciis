@@ -8,11 +8,14 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
+import com.example.minxuan.socialprojectv2.AccountHandler;
 import com.example.minxuan.socialprojectv2.Contacts.ContactsHandler;
+import com.example.minxuan.socialprojectv2.Message;
 import com.example.minxuan.socialprojectv2.NetworkClientHandler;
 import com.example.minxuan.socialprojectv2.R;
 import com.example.minxuan.socialprojectv2.Video.StartSingleCall;
 import com.example.minxuan.socialprojectv2.Video.VideoOnlineMembers;
+import com.google.gson.Gson;
 
 import java.io.FileInputStream;
 import java.io.ObjectInputStream;
@@ -56,6 +59,20 @@ public class VideoSingleCall extends AppCompatActivity {
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
+                        /** 整理要求視訊訊息*/
+                        Gson gson = new Gson();
+                        Message message = new Message();
+                        message.setTAG("VIDEO_SINGLE");
+                        message.setSender(AccountHandler.phoneNumber);
+                        message.setReceiver(ContactsHandler.item.get(position).get("ItemPhone").toString());
+                        message.setIP(AccountHandler.IP);
+                        message.setMessage("REQUEST");
+                        String gsonStr = gson.toJson(message);
+
+                        /** 送出訊息*/
+                        NetworkClientHandler.networkClient.webSocketClient.send(gsonStr);
+
+
                         Intent i = new Intent();
                         Bundle bundle = new Bundle();
                         bundle.putString("MODE", "REQUEST");

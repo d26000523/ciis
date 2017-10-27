@@ -49,9 +49,11 @@ public class videolive_receiver extends AppCompatActivity implements TextureView
 
         NetworkClientHandler.networkClient.setActivity(this);
         while(isWaiting){
+
             /**當建立成功 isStreaming為true，開始向串流server傳封包**/
             if(NetworkClientHandler.isStreaming) {
                 init();
+
                 isWaiting = false;
                 break;
             }
@@ -89,11 +91,11 @@ public class videolive_receiver extends AppCompatActivity implements TextureView
                                         String gsonStr = gson.toJson(message);
                                         NetworkClientHandler.networkClient.webSocketClient.send(gsonStr);
 
-                                        /** 跳轉頁面*/
-                                        Intent i = new Intent();
-                                        i.setClass(videolive_receiver.this, Menupage.class);
+//                                        /** 跳轉頁面*/
+//                                        Intent i = new Intent();
+//                                        i.setClass(videolive_receiver.this, Menupage.class);
                                         finish();
-                                        startActivity(i);
+//                                        startActivity(i);
                                     }
                                 })
                                 .show();

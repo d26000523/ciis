@@ -6,6 +6,8 @@ import android.media.MediaFormat;
 import android.util.Log;
 import android.view.Surface;
 
+import com.example.minxuan.socialprojectv2.NetworkClientHandler;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -46,11 +48,13 @@ public class Decoder {
     public void startDecoding()
     {
         running = true;
+
         Thread thread = new Thread()
         {
             @Override
             public void run()
             {
+                while (NetworkClientHandler.StreamingTarget== null){}
                 receiveFromUDP();
             }
         };
@@ -60,6 +64,8 @@ public class Decoder {
     /**停止解碼**/
     public void stopDecoding()
     {
+        data_sk.close();
+
         running = false;
     }
     /**開始接收封包**/
@@ -69,24 +75,21 @@ public class Decoder {
         /**Buffer大小**/
         byte[] message = new byte[PACKET_SIZE];
         DatagramPacket p = new DatagramPacket(message, message.length);
-        try
-        {
+        try {
             data_sk = new DatagramSocket(this.port);
             /**封包接收間隔時間**/
-            data_sk.setSoTimeout(5000);
+            data_sk.setSoTimeout(300);
         }
-        catch (SocketException e)
-        {
+        catch (SocketException e) {
             e.printStackTrace();
         }
 
         /**當解碼器開始運作以及Socket有開起來**/
-        while (running && data_sk!= null)
-        {
+        while (running && data_sk!= null) {
             /**嘗試接收封包**/
             outputStream = new ByteArrayOutputStream();
 
-            while(true){
+            while(!data_sk.isClosed()){
                 try {
 //                    if(message[0] != packetIndex) {
 //                        //設為-1 將不會祖起封包輸出畫面
@@ -94,6 +97,7 @@ public class Decoder {
 //                        break;
 //                    }
 //                    Log.d("data_sk:",String.valueOf(data_s0k.getSendBufferSize()));
+
                     data_sk.receive(p);
 
                     Log.d("packetsize:",String.valueOf(p.getLength()));
@@ -135,12 +139,10 @@ public class Decoder {
     /**檢查編碼器**/
     private void decoder_check(byte[] n, int len)
     {
-        if(decoderConfigured==true)
-        {
+        if(decoderConfigured) {
             offerDecoder(n, len);
         }
-        else
-        {
+        else {
             configureDecoder(getCsd0(), getCsd1());
         }
     }

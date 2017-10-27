@@ -195,6 +195,9 @@ public class Startvoicecall extends AppCompatActivity {
                         @Override
                         public void run() {
 
+                            //清空StreamingTarget以免下次直接接通
+                            NetworkClientHandler.StreamingTarget = null;
+
                             Toast.makeText(Startvoicecall.this,"Finished calling.",Toast.LENGTH_SHORT).show();
                             finish();
                         }
@@ -232,6 +235,9 @@ public class Startvoicecall extends AppCompatActivity {
                                         if(callvoice!= null)
                                             callvoice.stopPhone();
                                         callDialog.dismiss();
+
+                                        //清空StreamingTarget以免下次直接接通
+                                        NetworkClientHandler.StreamingTarget = null;
 
                                         finish();
 

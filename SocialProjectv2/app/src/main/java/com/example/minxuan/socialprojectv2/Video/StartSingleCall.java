@@ -22,6 +22,7 @@ import com.example.minxuan.socialprojectv2.AccountHandler;
 import com.example.minxuan.socialprojectv2.HomeActivity;
 import com.example.minxuan.socialprojectv2.MenuPage.Menupage;
 import com.example.minxuan.socialprojectv2.Message;
+import com.example.minxuan.socialprojectv2.NetworkClient;
 import com.example.minxuan.socialprojectv2.NetworkClientHandler;
 import com.example.minxuan.socialprojectv2.R;
 import com.example.minxuan.socialprojectv2.Voice.CallVoice;
@@ -96,29 +97,33 @@ public class StartSingleCall extends Activity implements SurfaceHolder.Callback,
         mTextureView = (TextureView) this.findViewById(R.id.remote);
         mTextureView.setSurfaceTextureListener(this);
         mTextureView.setRotation(270.0f);
+
+//        while (NetworkClientHandler.StreamingTarget ==null){}
         startStream(NetworkClientHandler.StreamingTarget, 10002);
 
 
 
         final Bundle bundle = this.getIntent().getExtras();
         NetworkClientHandler.networkClient.setActivity(this);
-        if(bundle.get("MODE").toString().compareTo("REQUEST")==0){
+
+        if(bundle.getString("MODE").equals("REQUEST")){
             targetPhone = bundle.getString("key");
 
-            /** 整理要求視訊訊息*/
-            Gson gson = new Gson();
-            Message message = new Message();
-            message.setTAG("VIDEO_SINGLE");
-            message.setSender(AccountHandler.phoneNumber);
-            message.setReceiver(targetPhone);
-            message.setIP(AccountHandler.IP);
-            message.setMessage("REQUEST");
-            String gsonStr = gson.toJson(message);
+//            /** 整理要求視訊訊息*/
+//            Gson gson = new Gson();
+//            Message message = new Message();
+//            message.setTAG("VIDEO_SINGLE");
+//            message.setSender(AccountHandler.phoneNumber);
+//            message.setReceiver(targetPhone);
+//            message.setIP(AccountHandler.IP);
+//            message.setMessage("REQUEST");
+//            String gsonStr = gson.toJson(message);
+//
+//            /** 送出訊息*/
+//            NetworkClientHandler.networkClient.webSocketClient.send(gsonStr);
 
-            /** 送出訊息*/
-            NetworkClientHandler.networkClient.webSocketClient.send(gsonStr);
 
-
+            //while (NetworkClientHandler.StreamingTarget ==null){}
             ok();
         }else if(bundle.get("MODE").toString().compareTo("ACCEPT")==0){
             targetPhone = bundle.getString("TARGET");
@@ -181,10 +186,16 @@ public class StartSingleCall extends Activity implements SurfaceHolder.Callback,
     {
         /**開始串流需要的資訊是:對方的IP以及雙方共同的port**/
         //對方接聽後開始出現聲音
-
-
 //        Log.e("TARGET", NetworkClientHandler.StreamingTarget);
+        /**使用CALLVOICE**/
+        try {
 
+            callvoice = new CallVoice(this, new InetSocketAddress(NetworkClientHandler.StreamingTarget, 10003));
+            callvoice.startPhone();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
 
 
         /**是否結束的按鈕監聽**/
@@ -205,6 +216,7 @@ public class StartSingleCall extends Activity implements SurfaceHolder.Callback,
                                 .setNegativeButton("Yes",new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
+                                        mDecoder.stopDecoding();
                                         try{
                                             if(callvoice!= null)
                                                 callvoice.stopPhone();
@@ -212,39 +224,36 @@ public class StartSingleCall extends Activity implements SurfaceHolder.Callback,
                                             e.printStackTrace();
                                         }
                                         sendCancelMsg(targetPhone);
-
+                                        //清空StreamingTarget
+                                        NetworkClientHandler.StreamingTarget = null;
                                         finish();
                                     }
                                 })
                                 .show();
                     }
                 });
-        /**使用CALLVOICE**/
-        try
-        {
-            while (NetworkClientHandler.StreamingTarget ==null){}
-            callvoice = new CallVoice(this, new InetSocketAddress(NetworkClientHandler.StreamingTarget, 10003));
-            callvoice.startPhone();
 
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
     }
+    //收到對方掛斷時停止繼續傳送影像及聲音
     public void voiceCancel(){
-
+        mDecoder.stopDecoding();
         new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
+
                     if(callvoice!= null)
                         callvoice.stopPhone();
 
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
+
                             Toast.makeText(StartSingleCall.this,"Finished calling.",Toast.LENGTH_SHORT).show();
+
+                            //清空StreamingTarget
+                            NetworkClientHandler.StreamingTarget = null;
+
                             finish();
                         }
                     });
@@ -256,10 +265,12 @@ public class StartSingleCall extends Activity implements SurfaceHolder.Callback,
     }
     @Override
     public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
-
         Surface mDecoderSurface=new Surface(surface);
+
         mDecoder=new Decoder(mDecoderSurface,10002,this,1300);
+        //while (NetworkClientHandler.StreamingTarget ==null){}
         mDecoder.startDecoding();
+        //mDecoderSurface.release();
     }
 
     @Override
@@ -325,8 +336,8 @@ public class StartSingleCall extends Activity implements SurfaceHolder.Callback,
             e.printStackTrace();
             return;
         }
-        sp.edit().putString(SP_DEST_IP, ip).commit();
-        sp.edit().putInt(SP_DEST_PORT, port).commit();
+        //sp.edit().putString(SP_DEST_IP, ip).apply();
+        //sp.edit().putInt(SP_DEST_PORT, port).apply();
 
         this.isStreaming = true;
         Thread thrd = new Thread(senderRun);
@@ -364,24 +375,20 @@ public class StartSingleCall extends Activity implements SurfaceHolder.Callback,
                 try {
                     //header 依序為 index, tail, splitData
                     outputStream.write(splitIndex);
-                    if(tail)
-                    {
+                    if(tail) {
                         outputStream.write(1);
                     }
-                    else
-                    {
+                    else {
                         outputStream.write(0);
                     }
                     outputStream.write(splitData);
 
                     byte[] res = outputStream.toByteArray();
 
-                    synchronized (this.encDataList)
-                    {
+                    synchronized (this.encDataList) {
                         this.encDataList.add(res);
                         //outputStream值清空
                         outputStream.reset();
-
                     }
                     splitIndex++;
                 } catch (IOException e) {
@@ -414,7 +421,9 @@ public class StartSingleCall extends Activity implements SurfaceHolder.Callback,
                     continue;
                 }
                 try {
-                    DatagramPacket packet = new DatagramPacket(encData, encData.length, address, port);
+                    //System.out.println("address:"  + InetAddress.getByName(NetworkClientHandler.StreamingTarget));
+
+                    DatagramPacket packet = new DatagramPacket(encData, encData.length, InetAddress.getByName(NetworkClientHandler.StreamingTarget), port);
                     udpSocket.send(packet);
                 } catch (IOException e) {
                     e.printStackTrace();

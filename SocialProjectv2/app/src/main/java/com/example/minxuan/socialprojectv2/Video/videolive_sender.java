@@ -46,14 +46,14 @@ public class videolive_sender extends Activity implements SurfaceHolder.Callback
     byte[] previewBuffer;
     boolean isStreaming = false;
     Encoder encoder;
-    ArrayList<byte[]> encDataList = new ArrayList<byte[]>();
-    ArrayList<Integer> encDataLengthList = new ArrayList<Integer>();
+    ArrayList<byte[]> encDataList = new ArrayList<>();
+    ArrayList<Integer> encDataLengthList = new ArrayList<>();
     final videolivecallvoice groupvoice = new videolivecallvoice(this);
 
     /** 是否等待server回應*/
     boolean isWaiting;
 
-    ///test global value for reduce memory size
+    ///test global value
     private byte[] encData;
     private int splitIndex = 0;
     private boolean tail = false;
@@ -119,10 +119,9 @@ public class videolive_sender extends Activity implements SurfaceHolder.Callback
                                         String gsonStr = gson.toJson(message);
                                         NetworkClientHandler.networkClient.webSocketClient.send(gsonStr);
 
-                                        Intent i = new Intent();
-                                        i.setClass(videolive_sender.this, Menupage.class);
+
                                         finish();
-                                        startActivity(i);
+
                                     }
                                 })
                                 .show();
@@ -251,6 +250,7 @@ public class videolive_sender extends Activity implements SurfaceHolder.Callback
         @Override
         public void run() {
             while (isStreaming) {
+
                 boolean empty = false;
                 byte[] encData = null;
 
@@ -269,6 +269,8 @@ public class videolive_sender extends Activity implements SurfaceHolder.Callback
                     continue;
                 }
                 try {
+
+
                     socket.doSend(socket.getServerAddress(), encData);
                 } catch (Exception e) {
                     e.printStackTrace();

@@ -135,7 +135,7 @@ public class videolivecallvoice {
                 byte[] audiot = new byte[recBufferSize*3];
                 while (NetworkClientHandler.isStreaming) {
                     try {
-                        if(UdpClientvoice.ds!=null)
+                        if(UdpClientvoice.ds!=null && !UdpClientvoice.ds.isClosed())
                             UdpClientvoice.ds.receive(Datapack);
                         packnum++;
                         if(packnum==1){

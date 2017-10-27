@@ -31,7 +31,8 @@ public class UdpClientvoice {
         isReceive = true;
 
         /** 負責註冊與取得對方資訊*/
-        receiver = new Thread() {
+        new Thread(new Runnable() {
+            @Override
             public void run() {
                 try {
                     doSend(serverAddress, (type+","+phone).getBytes());   /** 送出註冊訊息*/
@@ -39,8 +40,8 @@ public class UdpClientvoice {
                     e.printStackTrace();
                 }
             }
-        };
-        receiver.start();
+        }).start();
+
     }
 
     public SocketAddress getServerAddress(){

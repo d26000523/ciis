@@ -33,7 +33,7 @@ public class videoliveDecoder {
     private ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
     private byte[] tmp;
     private byte[] res;
-    private int packetIndex = 1;
+    private int packetIndex = 0;
 
 
     public videoliveDecoder(Surface surface1, int port, Context context)
@@ -59,10 +59,11 @@ public class videoliveDecoder {
     /**停止解碼**/
     public void stopDecoding()
     {
+        data_sk.close();
         running = false;
     }
     /**開始接收封包**/
-    private void receiveFromUDP()
+    private void  receiveFromUDP()
     {
 
         /**Buffer大小**/
@@ -74,7 +75,7 @@ public class videoliveDecoder {
         {
             data_sk = new DatagramSocket(this.port);
             /**封包接收間隔時間**/
-            data_sk.setSoTimeout(50);
+            data_sk.setSoTimeout(300);
         }
         catch (SocketException e)
         {
@@ -85,13 +86,13 @@ public class videoliveDecoder {
         {
             /**嘗試接收封包**/
             outputStream = new ByteArrayOutputStream();
-            while(true){
+            while(!data_sk.isClosed()){
                 try {
-                    if(message[0] != packetIndex) {
-                        //設為-1 將不會祖起封包輸出畫面
-                        packetIndex = -1;
-                        break;
-                    }
+//                    if(message[0] != packetIndex) {
+//                        //設為-1 將不會祖起封包輸出畫面
+//                        packetIndex = -1;
+//                        break;
+//                    }
 //                    Log.d("data_sk:",String.valueOf(data_sk.getSendBufferSize()));
                     data_sk.receive(p);
 
@@ -134,7 +135,7 @@ public class videoliveDecoder {
     /**檢查編碼器**/
     private void decoder_check(byte[] n, int len)
     {
-        if(decoderConfigured==true)
+        if(decoderConfigured)
         {
             offerDecoder(n, len);
         }
