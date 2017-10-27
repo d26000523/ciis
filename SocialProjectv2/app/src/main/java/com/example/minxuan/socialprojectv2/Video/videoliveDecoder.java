@@ -3,6 +3,7 @@ package com.example.minxuan.socialprojectv2.Video;
 import android.content.Context;
 import android.media.MediaCodec;
 import android.media.MediaFormat;
+import android.util.Log;
 import android.view.Surface;
 
 import java.io.ByteArrayOutputStream;
@@ -75,7 +76,7 @@ public class videoliveDecoder {
         {
             data_sk = new DatagramSocket(this.port);
             /**封包接收間隔時間**/
-            data_sk.setSoTimeout(300);
+            //data_sk.setSoTimeout(300);
         }
         catch (SocketException e)
         {
@@ -93,7 +94,7 @@ public class videoliveDecoder {
 //                        packetIndex = -1;
 //                        break;
 //                    }
-//                    Log.d("data_sk:",String.valueOf(data_sk.getSendBufferSize()));
+                    Log.d("data_sk:",String.valueOf(data_sk.getSendBufferSize()));
                     data_sk.receive(p);
 
 //                    Log.d("packetsize:",String.valueOf(p.getLength()));

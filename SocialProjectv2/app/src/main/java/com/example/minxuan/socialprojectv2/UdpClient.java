@@ -53,9 +53,10 @@ public class UdpClient {
 
     public void doSend(SocketAddress addr, byte[] data) throws Exception {
         DatagramPacket pack = new DatagramPacket(data, data.length, addr);
-        System.out.println(addr);
-        System.out.println(data);
-        System.out.println(data.length);
+        //有送到server
+//        System.out.println(addr);
+//        System.out.println(data);
+//        System.out.println(data.length);
         ds.send(pack);
     }
     public void broadcast(String message) {
