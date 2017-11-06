@@ -35,7 +35,6 @@ public class Decoder {
 
 
     private int packetIndex = 0;
-
     /**建構元**/
     public Decoder(Surface surface1, int port, Context context,int PACKET_SIZE)
     {
@@ -44,6 +43,7 @@ public class Decoder {
         mContext = context;
         this.port = port;
     }
+
     public void startDecoding()
     {
         running = true;
