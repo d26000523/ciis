@@ -6,10 +6,16 @@ import android.media.MediaFormat;
 import android.util.Log;
 import android.view.Surface;
 
+import com.example.minxuan.socialprojectv2.NetworkClient;
+import com.example.minxuan.socialprojectv2.NetworkClientHandler;
+import com.example.minxuan.socialprojectv2.UdpClient;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.Socket;
+import java.net.SocketAddress;
 import java.net.SocketException;
 import java.nio.ByteBuffer;
 
@@ -18,10 +24,10 @@ import java.nio.ByteBuffer;
  */
 
 public class videoliveDecoder {
-    private int PACKET_SIZE = 1300;/**封包大小**/
+    private int PACKET_SIZE = 64000;/**封包大小**/
 
     Context mContext;
-    DatagramSocket data_sk = null;
+    //DatagramSocket data_sk = null;
     private MediaCodec decoder;
     private MediaFormat format;
     private Surface surface;
@@ -51,6 +57,7 @@ public class videoliveDecoder {
             @Override
             public void run()
             {
+
                 receiveFromUDP();
             }
         };
@@ -60,71 +67,56 @@ public class videoliveDecoder {
     /**停止解碼**/
     public void stopDecoding()
     {
-        data_sk.close();
+        UdpClient.ds.close();
         running = false;
     }
     /**開始接收封包**/
     private void  receiveFromUDP()
     {
-
         /**Buffer大小**/
         byte[] message = new byte[PACKET_SIZE];
         DatagramPacket p = new DatagramPacket(message, message.length);
-
-
-        try
-        {
-            data_sk = new DatagramSocket(this.port);
-            /**封包接收間隔時間**/
-            //data_sk.setSoTimeout(300);
-        }
-        catch (SocketException e)
-        {
-            e.printStackTrace();
-        }
         /**當解碼器開始運作以及Socket有開起來**/
-        while (running && data_sk!= null)
-        {
-            /**嘗試接收封包**/
+        while(running && UdpClient.ds!=null){
+                /**嘗試接收封包**/
             outputStream = new ByteArrayOutputStream();
-            while(!data_sk.isClosed()){
+            while(!UdpClient.ds.isClosed() && NetworkClientHandler.isStreaming){
                 try {
 //                    if(message[0] != packetIndex) {
 //                        //設為-1 將不會祖起封包輸出畫面
 //                        packetIndex = -1;
 //                        break;
 //                    }
-                    Log.d("data_sk:",String.valueOf(data_sk.getSendBufferSize()));
-                    data_sk.receive(p);
 
-//                    Log.d("packetsize:",String.valueOf(p.getLength()));
-//                    Log.d("packet0:",String.valueOf(message[0]));
-//                    Log.d("packet1:",String.valueOf(message[1]));
-                    tmp = new byte[p.getLength()-2];
-                    System.arraycopy(message,2,tmp,0,tmp.length);
-                    outputStream.write(tmp);
-                    //收到封包的tail就結束並輸出並重設index
-                    if (message[1] == 1){
-                        packetIndex = 1;
-                        break;
-                    }
-                } catch (IOException e) {
+                    UdpClient.ds.receive(p);
+                    System.out.println(p.getLength());
+                   // p.getData()
+                    decoder_check(message, message.length);
+//                    tmp = new byte[p.getLength()-2];
+//                    System.arraycopy(message,2,tmp,0,tmp.length);
+//                    outputStream.write(tmp);
+//                    //System.out.println("/**嘗試接收封包**/");
+//                    //收到封包的tail就結束並輸出並重設index
+//                    if (message[1] == 1){
+//                        packetIndex = 1;
+//                        break;
+//                    }
+                }catch (IOException e) {
                     e.printStackTrace();
                 }
             }
-            if(packetIndex != -1){
-                res = outputStream.toByteArray();
-                outputStream.reset();
-//                Log.d("length",String.valueOf(res.length));
-                decoder_check(res, res.length);
-            }
-
-
+//            if(packetIndex != -1){
+//                res = outputStream.toByteArray();
+//                outputStream.reset();
+////                Log.d("length",String.valueOf(res.length));
+//                decoder_check(res, res.length);
+//            }
         }
+
         /**如果Socket沒有開起來**/
-        if (data_sk != null)
+        if (UdpClient.ds != null)
         {
-            data_sk.close();
+            UdpClient.ds.close();
         }
         /**將解碼器資源釋放乾淨**/
         if(decoder != null){

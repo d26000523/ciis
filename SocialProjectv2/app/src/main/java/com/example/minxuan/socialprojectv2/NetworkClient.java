@@ -155,6 +155,8 @@ public class NetworkClient {
                             }
                             break;
                         case "LISTEN_VIDEO_LIVE":
+                            System.out.println("LISTEN_VIDEO_LIVELISTEN_VIDEO_LIVELISTEN_VIDEO_LIVE" + mess.getMessage());
+
                             if(mess.getMessage().compareTo("SUCCESS")==0)
                             {
                                 NetworkClientHandler.isStreaming = true;
