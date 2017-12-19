@@ -33,8 +33,8 @@ public class videolive_sender extends Activity implements SurfaceHolder.Callback
     private final static String SP_CAM_WIDTH = "cam_width";/**鏡頭寬度(surface寬度)**/
     private final static String SP_CAM_HEIGHT = "cam_height";/**鏡頭長度(surface長度)**/
     private final static int DEFAULT_FRAME_RATE = 15;/**偵率，越高越流暢(原本設定15)**/
-    private final static int DEFAULT_BIT_RATE = 500000;/**碼率，這個值越高，影像越清晰，但流量越大**/
-    private int PACKET_SIZE = 1300;/**封包大小**/
+    private final static int DEFAULT_BIT_RATE = 900000;/**碼率，這個值越高，影像越清晰，但流量越大**/
+    private int PACKET_SIZE = 9600;/**封包大小**/
     private UdpClient socket;
     private UdpClientvoice socketvoice;
 
@@ -72,8 +72,8 @@ public class videolive_sender extends Activity implements SurfaceHolder.Callback
         /**調用預覽介面，預覽我們要傳送的畫面**/
         SurfaceView local = (SurfaceView) this.findViewById(R.id.local);
         SharedPreferences sp = videolive_sender.this.getPreferences(Context.MODE_PRIVATE);
-        sp.edit().putInt(SP_CAM_WIDTH, 320).commit();
-        sp.edit().putInt(SP_CAM_HEIGHT,240).commit();
+        sp.edit().putInt(SP_CAM_WIDTH, 320).apply();
+        sp.edit().putInt(SP_CAM_HEIGHT,240).apply();
         this.previewHolder = local.getHolder();
         this.previewHolder.addCallback(this);
         NetworkClientHandler.networkClient.setActivity(this);
@@ -198,51 +198,56 @@ public class videolive_sender extends Activity implements SurfaceHolder.Callback
             }
             //data經過h.264壓縮成encData分兩組frame(i,p)
             encData = this.encoder.data_change(data);
+            System.out.println("encData.length" + encData.length);
             //設置封包編號與結尾判斷
+            synchronized (this.encDataList){
+                this.encDataList.add(encData);
+            }
+
             splitIndex = 0;
             tail = false;
             //將壓縮大小依序切割放入封包中，前兩碼為編號及是否結尾
 //            Log.i("i","split start");
-            while(encData.length> (PACKET_SIZE-2)*splitIndex){
-                if(encData.length-(PACKET_SIZE-2)*(splitIndex+1)>0) {
-                    length = PACKET_SIZE-2;
-                    tail = false;
-                }
-                else{
-                    length = encData.length - (PACKET_SIZE-2)*(splitIndex);
-                    tail = true;
-                }
-                byte[] splitData = new byte[length];
-                //將encData分段複製到暫存splitData中
-                System.arraycopy(encData,(PACKET_SIZE-2)*splitIndex,splitData,0,length);
-                try {
-                    //header 依序為 index, tail, splitData
-                    outputStream.write(splitIndex);
-                    if(tail)
-                    {
-                        outputStream.write(1);
-                    }
-                    else
-                    {
-                        outputStream.write(0);
-                    }
-                    outputStream.write(splitData);
-
-                    byte[] res = outputStream.toByteArray();
-
-                    synchronized (this.encDataList)
-                    {
-                        this.encDataList.add(res);
-                        //outputStream值清空
-                        outputStream.reset();
-
-                    }
-                    splitIndex++;
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-            }
+//            while(encData.length> (PACKET_SIZE-2)*splitIndex){
+//                if(encData.length-(PACKET_SIZE-2)*(splitIndex+1)>0) {
+//                    length = PACKET_SIZE-2;
+//                    tail = false;
+//                }
+//                else{
+//                    length = encData.length - (PACKET_SIZE-2)*(splitIndex);
+//                    tail = true;
+//                }
+//                byte[] splitData = new byte[length];
+//                //將encData分段複製到暫存splitData中
+//                System.arraycopy(encData,(PACKET_SIZE-2)*splitIndex,splitData,0,length);
+//                try {
+//                    //header 依序為 index, tail, splitData
+//                    outputStream.write(splitIndex);
+//                    if(tail)
+//                    {
+//                        outputStream.write(1);
+//                    }
+//                    else
+//                    {
+//                        outputStream.write(0);
+//                    }
+//                    outputStream.write(splitData);
+//
+//                    byte[] res = outputStream.toByteArray();
+//
+//                    synchronized (this.encDataList)
+//                    {
+//                        this.encDataList.add(res);
+//                        //outputStream值清空
+//                        outputStream.reset();
+//
+//                    }
+//                    splitIndex++;
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//
+//            }
         }
     }
     /**執行串流的封包傳送**/
@@ -269,7 +274,6 @@ public class videolive_sender extends Activity implements SurfaceHolder.Callback
                     continue;
                 }
                 try {
-
 
                     socket.doSend(socket.getServerAddress(), encData);
                 } catch (Exception e) {

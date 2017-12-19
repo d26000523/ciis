@@ -29,6 +29,7 @@ public class UdpClient {
 
         ds = new DatagramSocket();  /** 開啟UDP Socket*/
         isReceive = true;
+        ds.setSoTimeout(300);
 
         /** 負責註冊與取得對方資訊*/
         receiver = new Thread() {
@@ -54,9 +55,9 @@ public class UdpClient {
     public void doSend(SocketAddress addr, byte[] data) throws Exception {
         DatagramPacket pack = new DatagramPacket(data, data.length, addr);
         //有送到server
-//        System.out.println(addr);
-//        System.out.println(data);
-//        System.out.println(data.length);
+        System.out.println(pack.getLength());
+        System.out.println(ds.getReceiveBufferSize());
+        System.out.println(ds.getSendBufferSize());
         ds.send(pack);
     }
     public void broadcast(String message) {

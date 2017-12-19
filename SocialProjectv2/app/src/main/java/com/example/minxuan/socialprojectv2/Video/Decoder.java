@@ -14,6 +14,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 /**
  * Created by Rmo on 2017/9/28.
@@ -31,10 +32,8 @@ public class Decoder {
     int port;
     private volatile boolean running = true;
 
-    ///test global value for reduce memory size
-    private ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-    private byte[] tmp;
-    private byte[] res;
+
+
     private int packetIndex = 0;
     /**建構元**/
     public Decoder(Surface surface1, int port, Context context,int PACKET_SIZE)
@@ -78,16 +77,17 @@ public class Decoder {
         try {
             data_sk = new DatagramSocket(this.port);
             /**封包接收間隔時間**/
-            data_sk.setSoTimeout(300);
+            data_sk.setSoTimeout(3000);
         }
         catch (SocketException e) {
             e.printStackTrace();
         }
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
         /**當解碼器開始運作以及Socket有開起來**/
         while (running && data_sk!= null) {
             /**嘗試接收封包**/
-            outputStream = new ByteArrayOutputStream();
+
 
             while(!data_sk.isClosed()){
                 try {
@@ -100,12 +100,13 @@ public class Decoder {
 
                     data_sk.receive(p);
 
-                    Log.d("packetsize:",String.valueOf(p.getLength()));
-                    Log.d("packet0:",String.valueOf(message[0]));
-                    Log.d("packet1:",String.valueOf(message[1]));
-                    tmp = new byte[p.getLength()-2];
+//                    Log.d("packetsize:",String.valueOf(p.getLength()));
+//                    Log.d("packet0:",String.valueOf(message[0]));
+//                    Log.d("packet1:",String.valueOf(message[1]));
+                    byte[] tmp = new byte[p.getLength()-2];
                     System.arraycopy(message,2,tmp,0,tmp.length);
                     outputStream.write(tmp);
+
                     //收到封包的tail就結束並輸出並重設index
                     if (message[1] == 1){
                         packetIndex = 1;
@@ -116,17 +117,15 @@ public class Decoder {
                 }
             }
             if(packetIndex != -1){
-                res = outputStream.toByteArray();
-                outputStream.reset();
+
 //                Log.d("length",String.valueOf(res.length));
-                decoder_check(res, res.length);
+                decoder_check(outputStream.toByteArray(), outputStream.toByteArray().length);
+                outputStream.reset();
+
             }
-
-
         }
         /**如果Socket沒有開起來**/
-        if (data_sk != null)
-        {
+        if (data_sk != null) {
             data_sk.close();
         }
         /**將解碼器資源釋放乾淨**/
@@ -193,6 +192,7 @@ public class Decoder {
                 running = false;
                 return;
             }
+
         }
         catch (Exception e) {}
         decoder.start();
@@ -203,27 +203,50 @@ public class Decoder {
         try
         {
             ByteBuffer[] inputBuffers = decoder.getInputBuffers();
-            int inputBufferIndex = decoder.dequeueInputBuffer(0);
-            if (inputBufferIndex >= 0) {
-                ByteBuffer inputBuffer = inputBuffers[inputBufferIndex];
-                inputBuffer.clear();
-                try
-                {
-                    inputBuffer.put(input, 0, length);
-                }
-                catch (Exception e){
-                    e.printStackTrace();
-                }
-                decoder.queueInputBuffer(inputBufferIndex, 0, length, 0, 0);
-            }
-            MediaCodec.BufferInfo bufferInfo = new MediaCodec.BufferInfo();
 
-            int outputBufferIndex = decoder.dequeueOutputBuffer(bufferInfo, 0);
-            while (outputBufferIndex >= 0)
-            {
-                decoder.releaseOutputBuffer(outputBufferIndex, true);
-                outputBufferIndex = decoder.dequeueOutputBuffer(bufferInfo, 0);
+            //ByteBuffer inputBuffer2 = decoder.getInputBuffer(decoder.dequeueInputBuffer(0));
+            int inputBufferIndex = decoder.dequeueInputBuffer(0);
+            if(inputBufferIndex >= 0) {
+                ByteBuffer inputBuffer = decoder.getInputBuffer(inputBufferIndex);
+                if(inputBuffer!= null){
+                    inputBuffer.clear();
+                    inputBuffer.put(input,0,length);
+                    decoder.queueInputBuffer(inputBufferIndex, 0, length, 0, 0);
+                    MediaCodec.BufferInfo bufferInfo = new MediaCodec.BufferInfo();
+                    int outputBufferIndex = decoder.dequeueOutputBuffer(bufferInfo, 0);
+                    while (outputBufferIndex >= 0) {
+                        decoder.releaseOutputBuffer(outputBufferIndex, true);
+                        outputBufferIndex = decoder.dequeueOutputBuffer(bufferInfo, 0);
+
+                    }
+                    decoder.flush();
+                }
             }
+
+
+//            if (inputBufferIndex >= 0) {
+//                //ByteBuffer inputBuffer = inputBuffers[inputBufferIndex];
+//                ByteBuffer inputBuffer = decoder.getInputBuffer(inputBufferIndex);
+//                inputBuffer.clear();
+//                try
+//                {
+//                    inputBuffer.put(input, 0, length);
+//                }
+//                catch (Exception e){
+//                    e.printStackTrace();
+//                }
+//                decoder.queueInputBuffer(inputBufferIndex, 0, length, 0, 0);
+//            }
+//            MediaCodec.BufferInfo bufferInfo = new MediaCodec.BufferInfo();
+//
+//            int outputBufferIndex = decoder.dequeueOutputBuffer(bufferInfo, 0);
+//            while (outputBufferIndex >= 0)
+//            {
+//                decoder.releaseOutputBuffer(outputBufferIndex, true);
+//                outputBufferIndex = decoder.dequeueOutputBuffer(bufferInfo, 0);
+//            }
+
+            //decoder.flush();
         }
         catch (Throwable t)
         {

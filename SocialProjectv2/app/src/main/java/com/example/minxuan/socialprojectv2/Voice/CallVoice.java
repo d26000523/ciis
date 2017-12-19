@@ -9,6 +9,8 @@ import android.media.AudioTrack;
 import android.media.MediaRecorder;
 import android.util.Log;
 
+import com.example.minxuan.socialprojectv2.NetworkClientHandler;
+
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -51,7 +53,7 @@ public class CallVoice {
         this.context = context;
         try {
             datasock = new DatagramSocket(10003);
-            datasock.setSoTimeout(5000);
+            datasock.setSoTimeout(300);
         } catch (SocketException e) {
             e.printStackTrace();
         }
@@ -153,6 +155,7 @@ public class CallVoice {
             public void run() {
                 int packnum = 0;
                 while (type==1 && datasock != null) {
+                    if(NetworkClientHandler.StreamingTarget!= null)
                     try {
 
                         datasock.receive(Datapack);
