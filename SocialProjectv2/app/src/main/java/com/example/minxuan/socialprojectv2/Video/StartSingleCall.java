@@ -188,14 +188,20 @@ public class StartSingleCall extends Activity implements SurfaceHolder.Callback,
         //對方接聽後開始出現聲音
 //        Log.e("TARGET", NetworkClientHandler.StreamingTarget);
         /**使用CALLVOICE**/
-        try {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    while (NetworkClientHandler.StreamingTarget ==null){}
+                    callvoice = new CallVoice(StartSingleCall.this, new InetSocketAddress(NetworkClientHandler.StreamingTarget, 10003));
+                    callvoice.startPhone();
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
 
-            callvoice = new CallVoice(this, new InetSocketAddress(NetworkClientHandler.StreamingTarget, 10003));
-            callvoice.startPhone();
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
 
 
         /**是否結束的按鈕監聽**/

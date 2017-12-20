@@ -3,6 +3,7 @@ package com.example.minxuan.socialprojectv2.MQTT;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -20,7 +21,7 @@ import org.eclipse.paho.client.mqttv3.MqttSecurityException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class MQTTSingleMessage extends ActionBarActivity {
+public class MQTTSingleMessage extends AppCompatActivity {
     int select;
     int checkcount = 0;
     ArrayList<HashMap<String, Object>> Item;

@@ -55,9 +55,10 @@ public class UdpClient {
     public void doSend(SocketAddress addr, byte[] data) throws Exception {
         DatagramPacket pack = new DatagramPacket(data, data.length, addr);
         //有送到server
-        System.out.println(pack.getLength());
-        System.out.println(ds.getReceiveBufferSize());
-        System.out.println(ds.getSendBufferSize());
+        if(pack.getLength() > 15000)
+            System.out.println(pack.getLength());
+        //System.out.println("getReceiveBufferSize" + ds.getReceiveBufferSize());
+        //System.out.println("getSendBufferSize" + ds.getSendBufferSize());
         ds.send(pack);
     }
     public void broadcast(String message) {

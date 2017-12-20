@@ -403,6 +403,7 @@ public class MqttClientAndroidService extends BroadcastReceiver implements
      * @see org.eclipse.paho.client.mqttv3.IMqttAsyncClient#subscribe(String,
      *      int, Object, IMqttActionListener)
      */
+    //String topic, int qos
     @Override
     public IMqttToken subscribe(String topic, int qos, Object userContext, IMqttActionListener callback) throws MqttException {
         IMqttToken token = new MqttTokenAndroidService(this, userContext, callback, new String[]{topic});
@@ -415,6 +416,7 @@ public class MqttClientAndroidService extends BroadcastReceiver implements
      * @see org.eclipse.paho.client.mqttv3.IMqttAsyncClient#subscribe(String[],
      *      int[], Object, IMqttActionListener)
      */
+    //String[] topic, int[] qos
     @Override
     public IMqttToken subscribe(String[] topic, int[] qos, Object userContext,
                                 IMqttActionListener callback) throws MqttException {

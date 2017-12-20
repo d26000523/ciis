@@ -180,12 +180,14 @@ public class MainActivity extends Activity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 switch (position){
+                    //user info
                     case 0:
                         Intent i0 = new Intent();
                         i0.putExtra("info",forinfo);
                         i0.setClass(MainActivity.this, Mqtt_userinfo.class);
                         startActivity(i0);
                         break;
+                    //message box
                     case 1:
                         try {
                             SharedSocket sh = (SharedSocket)getApplication();//拿出applicatioon
@@ -210,23 +212,28 @@ public class MainActivity extends Activity {
                         i2.setClass(MainActivity.this, MQTTMessageBox.class);
                         startActivity(i2);
                         break;
+                    //message(user list and message content)
                     case 2:
                         Intent i = new Intent();
                         i.setClass(MainActivity.this, MQTTSingleMessage.class);
                         startActivity(i);
                         sh.clientHandle = clientHandle;
                         break;
+                    //message broadcast
                     case 3 :
                         Broadcasting();
                         break;
+                    //voice single(user list)
                     case 4:
                         Intent i3 = new Intent();
                         i3.setClass(MainActivity.this, MQTTSingleCall.class);
                         startActivity(i3);
                         break;
+                    //voice broadcast
                     case 5:
                         AudioBroadcasting();
                         break;
+                    //video single(user list)
                     case 6:
                         videoCall();
                         break;
@@ -343,19 +350,20 @@ public class MainActivity extends Activity {
     void subscribe(String[] topics){
         int qos = 0;
         try {
+            //線上UElist
             Connections.getInstance(context).getConnection(clientHandle).getClient()
                     .subscribe(topics[0], qos, null, new ActionListener(context, Action.SUBSCRIBE, clientHandle, topics));
+            //MQTT_SMS_SEND(廣播)
             Connections.getInstance(context).getConnection(clientHandle).getClient()
                     .subscribe(topics[1], qos, null, new ActionListener(context, Action.SUBSCRIBE, clientHandle, topics));
+            //MQTT_SMS_SEND_$(自己)
             Connections.getInstance(context).getConnection(clientHandle).getClient()
                     .subscribe(topics[2], qos, null, new ActionListener(context, Action.SUBSCRIBE, clientHandle, topics));
         }
-        catch (MqttSecurityException e)
-        {
+        catch (MqttSecurityException e) {
             Log.e(this.getClass().getCanonicalName(), "Failed to subscribe to" + topics[0] + " the client with the handle " + clientHandle, e);
         }
-        catch (MqttException e)
-        {
+        catch (MqttException e) {
             Log.e(this.getClass().getCanonicalName(), "Failed to subscribe to" + topics[0] + " the client with the handle " + clientHandle, e);
         }
     }
@@ -430,7 +438,7 @@ public class MainActivity extends Activity {
         public void onClick(View v)
         {
             final EditText e = (EditText)add.findViewById(R.id.msg);
-            if ("".equals(e.getText().toString().trim())) {
+            if ("".equals(e.getText().toString())) {
                 Toast.makeText(getApplicationContext(), "Please fill text field!", Toast.LENGTH_SHORT).show();
             }
             else
@@ -459,18 +467,14 @@ public class MainActivity extends Activity {
         String[] args = new String[2];
         args[0] = message;
         args[1] = topic;
-        try
-        {
-            Connections.getInstance(this).getConnection(sh.clientHandle).getClient()
-                    .publish(topic, message.getBytes(), qos, retained, null, new ActionListener(this, ActionListener.Action.PUBLISH, sh.clientHandle, args));
+        try{
+            Connections.getInstance(this).getConnection(sh.clientHandle).getClient().publish(topic, message.getBytes(), qos, retained, null, new ActionListener(this, ActionListener.Action.PUBLISH, sh.clientHandle, args));
             handler.post(connecttoserversuccess2);
         }
-        catch (MqttSecurityException e)
-        {
+        catch (MqttSecurityException e){
             Log.e(this.getClass().getCanonicalName(), "Failed to publish a messaged from the client with the handle " + clientHandle, e);
         }
-        catch (MqttException e)
-        {
+        catch (MqttException e){
             Log.e(this.getClass().getCanonicalName(), "Failed to publish a messaged from the client with the handle " + clientHandle, e);
         }
     }
@@ -521,31 +525,8 @@ public class MainActivity extends Activity {
         startActivity(i);
         //finish();
     }
-    /**按下返回鍵**/
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if ((keyCode == KeyEvent.KEYCODE_BACK)) {   //確定按下退出鍵
-            new AlertDialog.Builder(MainActivity.this)//對話方塊
-                    .setIcon(R.mipmap.ic_launcher)
-                    .setTitle("Exit Social Project")
-                    .setMessage("Are You Sure?")
-                    .setCancelable(false)
-                    .setPositiveButton("Cancel", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                        }
-                    })
-                    .setNegativeButton("Yes",new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            MainActivity.this.finish();
-                        }
-                    })
-                    .show();
 
-            return true;
-        }
-        return super.onKeyDown(keyCode, event);
-    }
+
     /**取得權限**/
     public void perchec()
     {
@@ -579,5 +560,24 @@ public class MainActivity extends Activity {
                 return;
             }
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        /**按下返回鍵**/
+        new AlertDialog.Builder(this)//對話方塊
+                .setIcon(R.mipmap.ic_launcher)
+                .setTitle("Exit Social Project")
+                .setMessage("Are You Sure?")
+                .setCancelable(false)
+                .setPositiveButton("Cancel", null)
+                .setNegativeButton("Yes",new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        MainActivity.this.finish();
+                    }
+                })
+                .show();
     }
 }

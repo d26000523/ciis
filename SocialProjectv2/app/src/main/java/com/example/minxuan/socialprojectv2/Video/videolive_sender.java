@@ -33,7 +33,7 @@ public class videolive_sender extends Activity implements SurfaceHolder.Callback
     private final static String SP_CAM_WIDTH = "cam_width";/**鏡頭寬度(surface寬度)**/
     private final static String SP_CAM_HEIGHT = "cam_height";/**鏡頭長度(surface長度)**/
     private final static int DEFAULT_FRAME_RATE = 15;/**偵率，越高越流暢(原本設定15)**/
-    private final static int DEFAULT_BIT_RATE = 900000;/**碼率，這個值越高，影像越清晰，但流量越大**/
+    private final static int DEFAULT_BIT_RATE = 500000;/**碼率，這個值越高，影像越清晰，但流量越大**/
     private int PACKET_SIZE = 9600;/**封包大小**/
     private UdpClient socket;
     private UdpClientvoice socketvoice;
@@ -198,7 +198,7 @@ public class videolive_sender extends Activity implements SurfaceHolder.Callback
             }
             //data經過h.264壓縮成encData分兩組frame(i,p)
             encData = this.encoder.data_change(data);
-            System.out.println("encData.length" + encData.length);
+            //System.out.println("encData.length" + encData.length);
             //設置封包編號與結尾判斷
             synchronized (this.encDataList){
                 this.encDataList.add(encData);

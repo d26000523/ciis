@@ -24,7 +24,7 @@ import java.nio.ByteBuffer;
  */
 
 public class videoliveDecoder {
-    private int PACKET_SIZE = 64000;/**封包大小**/
+    private int PACKET_SIZE = 20000;/**封包大小**/
 
     Context mContext;
     //DatagramSocket data_sk = null;
@@ -79,7 +79,7 @@ public class videoliveDecoder {
         /**當解碼器開始運作以及Socket有開起來**/
         while(running && UdpClient.ds!=null){
                 /**嘗試接收封包**/
-            outputStream = new ByteArrayOutputStream();
+            //outputStream = new ByteArrayOutputStream();
             while(!UdpClient.ds.isClosed() && NetworkClientHandler.isStreaming){
                 try {
 //                    if(message[0] != packetIndex) {
@@ -91,7 +91,7 @@ public class videoliveDecoder {
                     UdpClient.ds.receive(p);
                     System.out.println(p.getLength());
                    // p.getData()
-                    decoder_check(message, message.length);
+                    decoder_check(p.getData(), p.getLength());
 //                    tmp = new byte[p.getLength()-2];
 //                    System.arraycopy(message,2,tmp,0,tmp.length);
 //                    outputStream.write(tmp);

@@ -199,54 +199,32 @@ public class Decoder {
         decoderConfigured = true;
     }
     /**解碼H.264格式封包**/
+    /**解碼H.264格式封包**/
     private void offerDecoder(byte[] input, int length) {
         try
         {
             ByteBuffer[] inputBuffers = decoder.getInputBuffers();
-
-            //ByteBuffer inputBuffer2 = decoder.getInputBuffer(decoder.dequeueInputBuffer(0));
             int inputBufferIndex = decoder.dequeueInputBuffer(0);
-            if(inputBufferIndex >= 0) {
-                ByteBuffer inputBuffer = decoder.getInputBuffer(inputBufferIndex);
-                if(inputBuffer!= null){
-                    inputBuffer.clear();
-                    inputBuffer.put(input,0,length);
-                    decoder.queueInputBuffer(inputBufferIndex, 0, length, 0, 0);
-                    MediaCodec.BufferInfo bufferInfo = new MediaCodec.BufferInfo();
-                    int outputBufferIndex = decoder.dequeueOutputBuffer(bufferInfo, 0);
-                    while (outputBufferIndex >= 0) {
-                        decoder.releaseOutputBuffer(outputBufferIndex, true);
-                        outputBufferIndex = decoder.dequeueOutputBuffer(bufferInfo, 0);
-
-                    }
-                    decoder.flush();
+            if (inputBufferIndex >= 0) {
+                ByteBuffer inputBuffer = inputBuffers[inputBufferIndex];
+                inputBuffer.clear();
+                try
+                {
+                    inputBuffer.put(input, 0, length);
                 }
+                catch (Exception e){
+                    e.printStackTrace();
+                }
+                decoder.queueInputBuffer(inputBufferIndex, 0, length, 0, 0);
             }
+            MediaCodec.BufferInfo bufferInfo = new MediaCodec.BufferInfo();
 
-
-//            if (inputBufferIndex >= 0) {
-//                //ByteBuffer inputBuffer = inputBuffers[inputBufferIndex];
-//                ByteBuffer inputBuffer = decoder.getInputBuffer(inputBufferIndex);
-//                inputBuffer.clear();
-//                try
-//                {
-//                    inputBuffer.put(input, 0, length);
-//                }
-//                catch (Exception e){
-//                    e.printStackTrace();
-//                }
-//                decoder.queueInputBuffer(inputBufferIndex, 0, length, 0, 0);
-//            }
-//            MediaCodec.BufferInfo bufferInfo = new MediaCodec.BufferInfo();
-//
-//            int outputBufferIndex = decoder.dequeueOutputBuffer(bufferInfo, 0);
-//            while (outputBufferIndex >= 0)
-//            {
-//                decoder.releaseOutputBuffer(outputBufferIndex, true);
-//                outputBufferIndex = decoder.dequeueOutputBuffer(bufferInfo, 0);
-//            }
-
-            //decoder.flush();
+            int outputBufferIndex = decoder.dequeueOutputBuffer(bufferInfo, 0);
+            while (outputBufferIndex >= 0)
+            {
+                decoder.releaseOutputBuffer(outputBufferIndex, true);
+                outputBufferIndex = decoder.dequeueOutputBuffer(bufferInfo, 0);
+            }
         }
         catch (Throwable t)
         {
