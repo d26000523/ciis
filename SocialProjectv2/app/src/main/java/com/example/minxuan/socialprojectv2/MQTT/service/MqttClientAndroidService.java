@@ -273,7 +273,7 @@ public class MqttClientAndroidService extends BroadcastReceiver implements
     @Override
     public IMqttToken disconnect() throws MqttException {
         IMqttToken token = new MqttTokenAndroidService(this, null,
-                (IMqttActionListener) null);
+                 null);
         String activityToken = storeToken(token);
         mqttService.disconnect(clientHandle, null, activityToken);
         return token;
@@ -285,7 +285,7 @@ public class MqttClientAndroidService extends BroadcastReceiver implements
     @Override
     public IMqttToken disconnect(long quiesceTimeout) throws MqttException {
         IMqttToken token = new MqttTokenAndroidService(this, null,
-                (IMqttActionListener) null);
+                 null);
         String activityToken = storeToken(token);
         mqttService.disconnect(clientHandle, quiesceTimeout, null,
                 activityToken);

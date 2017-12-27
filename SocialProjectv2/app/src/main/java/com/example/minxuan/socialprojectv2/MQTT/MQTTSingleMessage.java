@@ -78,13 +78,15 @@ public class MQTTSingleMessage extends AppCompatActivity {
         String user[] = sh.LIST_msg.split("\\{");
         for(int i=1;i<user.length;i++){
             String single[] = user[i].split("\n|:");
-            HashMap<String, Object> map = new HashMap<String, Object>();
-            String ItemName = (single[6].split("\\."))[2]+"_"+(single[6].split("\\."))[3];
-            map.put("ItemImage", R.drawable.boy);
-            map.put("ItemName", ItemName);
-            map.put("ItemPhone", single[6]);
-            map.put("ItemClick", R.drawable.checkwhite);
-            Item.add(map);
+            if(!single[6].equals(MainActivity.getLocalIpAddress())) {
+                HashMap<String, Object> map = new HashMap<String, Object>();
+                String ItemName = (single[6].split("\\."))[2] + "_" + (single[6].split("\\."))[3];
+                map.put("ItemImage", R.drawable.boy);
+                map.put("ItemName", ItemName);
+                map.put("ItemPhone", single[6]);
+                map.put("ItemClick", R.drawable.checkwhite);
+                Item.add(map);
+            }
         }
 
         final ListView friendview = (ListView)findViewById(R.id.friendlist);

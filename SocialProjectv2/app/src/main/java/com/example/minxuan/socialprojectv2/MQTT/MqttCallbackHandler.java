@@ -88,7 +88,7 @@ public class MqttCallbackHandler implements MqttCallback {
         args[1] = topic;
 
         //get the string from strings.xml and format
-        String messageString = context.getString(R.string.messageRecieved, (Object[]) args);
+        String messageString = context.getString(R.string.messageRecieved, args);
 
         //create intent to start activity
         Intent intent = new Intent();

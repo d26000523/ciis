@@ -18,6 +18,7 @@ import android.widget.Toast;
 import com.example.minxuan.socialprojectv2.ListviewAdapter.messagesendadapter;
 import com.example.minxuan.socialprojectv2.MQTT.ActionListener;
 import com.example.minxuan.socialprojectv2.MQTT.Connections;
+import com.example.minxuan.socialprojectv2.MQTT.MainActivity;
 import com.example.minxuan.socialprojectv2.R;
 import com.example.minxuan.socialprojectv2.SharedSocket;
 import com.example.minxuan.socialprojectv2.Voice.CallVoice;
@@ -47,15 +48,19 @@ public class MQTTSingleCall extends ActionBarActivity {
         String user[] = sh.LIST_msg.split("\\{");
         for(int i=1;i<user.length;i++){
             String single[] = user[i].split("\n|:");
-            HashMap<String, Object> map = new HashMap<String, Object>();
+            //自己的IP不用加入list當中
+            if(!single[6].equals(MainActivity.getLocalIpAddress())){
+                HashMap<String, Object> map = new HashMap<String, Object>();
 
-            String ItemName = (single[6].split("\\."))[2]+"_"+(single[6].split("\\."))[3];
+                String ItemName = (single[6].split("\\."))[2]+"_"+(single[6].split("\\."))[3];
+                System.out.println("single[6]" + single[6]);
+                map.put("ItemImage", R.drawable.boy);
+                map.put("ItemName", ItemName);
+                map.put("ItemPhone", single[6]);
+                map.put("ItemClick", R.drawable.checkwhite);
+                Item.add(map);
+            }
 
-            map.put("ItemImage", R.drawable.boy);
-            map.put("ItemName", ItemName);
-            map.put("ItemPhone", single[6]);
-            map.put("ItemClick", R.drawable.checkwhite);
-            Item.add(map);
         }
 
         final ListView friendview = (ListView)findViewById(R.id.friendlist);
